@@ -6,9 +6,13 @@ By default this generates the following API:
 
 - **Constructors:**
 
-    1. `new()`: Initializes all bits to 0 even if 0 bits may be invalid.
+    1. `new()`: When any field has a `#[default(...)]` attribute, this applies the specified 
+       default values. When no defaults are specified, initializes all bits to 0.
        Note that invalid bit patterns are supported in that getters and setters will
-       be protecting accesses.
+       be protecting accesses. This constructor is always `const fn`.
+    2. `new_zeroed()`: Generated when any field has a `#[default(...)]` attribute.
+       Always initializes all bits to 0, ignoring any default values.
+       This constructor is always `const fn`.
 
 - **Getters:**
 
@@ -178,6 +182,48 @@ pub struct Sparse {
 }
 ```
 
+## Field Parameter: `#[default(...)]`
+
+The `#[default(...)]` attribute allows you to specify a default value for a field.
+When using this attribute, the `new()` constructor applies the specified default values,
+and an additional `new_zeroed()` constructor is generated for explicit zero initialization.
+
+### Example
+
+```
+# use modular_bitfield::prelude::*;
+#[bitfield]
+pub struct Config {
+    enabled: bool,
+    #[default(true)]
+    auto_restart: bool,
+    #[default(5)]
+    retry_count: B6,
+    #[default(0xFF)]
+    flags: B8,
+}
+
+// Create with default values applied
+let config1 = Config::new();
+assert_eq!(config1.auto_restart(), true);
+assert_eq!(config1.retry_count(), 5);
+assert_eq!(config1.flags(), 0xFF);
+
+// Create with all zeros
+let config2 = Config::new_zeroed();
+assert_eq!(config2.auto_restart(), false);
+assert_eq!(config2.retry_count(), 0);
+assert_eq!(config2.flags(), 0);
+```
+
+### Limitations
+
+- The `#[default(...)]` attribute cannot be used on fields that skip setter generation
+  (i.e., fields marked with `#[skip]` or `#[skip(setters)]`).
+- Default values must be valid for the field's type and bit width.
+- Default expressions must be const-evaluable (literals, const variables, enum variants, simple const expressions).
+- Both `new()` and `new_zeroed()` constructors are `const fn` and work in const contexts.
+
 # Features
 
 ## Support: `#[derive(Specifier)]`
@@ -218,6 +264,35 @@ pub struct Base {
     header: Header, //  4 bits
     content: B28,   // 28 bits
 }
+```
+
+## Support: `#[derive(Default)]`
+
+If a `#[derive(Default)]` is found by the `#[bitfield]` a `Default` implementation
+is generated that calls `Self::new()`. This means that when fields have `#[default(...)]`
+attributes, those default values will be applied. When no defaults are specified,
+all fields are zero-initialized.
+
+### Example
+
+```
+# use modular_bitfield::prelude::*;
+#[bitfield]
+#[derive(Default)]
+pub struct Config {
+    enabled: bool,
+    #[default(true)]
+    auto_restart: bool,
+    #[default(5)]
+    retry_count: B6,
+    flags: B8, // no default, so zero-initialized
+}
+
+let config = Config::default();
+assert_eq!(config.enabled(), false);     // zero-initialized
+assert_eq!(config.auto_restart(), true); // uses default value
+assert_eq!(config.retry_count(), 5);     // uses default value
+assert_eq!(config.flags(), 0);           // zero-initialized
 ```
 
 ## Support: `#[derive(Debug)]`

@@ -13,6 +13,7 @@ pub struct Config {
     pub filled: Option<ConfigValue<bool>>,
     pub repr: Option<ConfigValue<ReprKind>>,
     pub derive_debug: Option<ConfigValue<()>>,
+    pub derive_default: Option<ConfigValue<()>>,
     pub derive_specifier: Option<ConfigValue<()>>,
     pub deprecated_specifier: Option<Span>,
     pub retained_attributes: Vec<syn::Attribute>,
@@ -144,11 +145,32 @@ impl Config {
         Ok(())
     }
 
+    /// Ensures that there are no default values on fields that skip setters.
+    pub fn ensure_no_default_and_skip_conflict(&self) -> Result<()> {
+        for config_value in self.field_configs.values() {
+            let field_config = &config_value.value;
+            if let (Some(default), Some(skip)) = (&field_config.default, &field_config.skip) {
+                if field_config.skip_setters() {
+                    return Err(format_err!(
+                        default.span,
+                        "cannot use #[default(...)] on field that skips setters"
+                    )
+                    .into_combine(format_err!(
+                        skip.span,
+                        "field skips setters here"
+                    )));
+                }
+            }
+        }
+        Ok(())
+    }
+
     /// Ensures that there are no conflicting configuration parameters.
     pub fn ensure_no_conflicts(&self) -> Result<()> {
         self.ensure_no_bits_and_repr_conflict()?;
         self.ensure_no_bits_and_bytes_conflict()?;
         self.ensure_no_repr_and_filled_conflict()?;
+        self.ensure_no_default_and_skip_conflict()?;
         Ok(())
     }
 
@@ -243,6 +265,25 @@ impl Config {
                 ))
             }
             None => self.derive_debug = Some(ConfigValue::new((), span)),
+        }
+        Ok(())
+    }
+
+    /// Registers the `#[derive(Default)]` attribute for the #[bitfield] macro.
+    ///
+    /// # Errors
+    ///
+    /// If a `#[derive(Default)]` attribute has already been found.
+    pub fn derive_default(&mut self, span: Span) -> Result<()> {
+        match &self.derive_default {
+            Some(previous) => {
+                return Err(Self::raise_duplicate_error(
+                    "#[derive(Default)]",
+                    span,
+                    previous,
+                ))
+            }
+            None => self.derive_default = Some(ConfigValue::new((), span)),
         }
         Ok(())
     }
