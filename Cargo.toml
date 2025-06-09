@@ -1,3 +1,20 @@
+[workspace]
+members = [
+    "impl"
+]
+default-members = ["", "impl"]
+resolver = "2"
+
+[workspace.package]
+authors = ["Robin Freyler <robinfreyler@web.de>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false # Use `release.sh`
+documentation = "https://docs.rs/modular-bitfield"
+repository = "https://github.com/modular-bitfield/modular-bitfield"
+rust-version = "1.70.0"
+version = "0.13.0-pre"
+
 [package]
 name = "modular-bitfield"
 version = "0.11.2"
