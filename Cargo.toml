@@ -1,7 +1,5 @@
 [workspace]
-members = [
-    "impl"
-]
+members = ["impl"]
 default-members = ["", "impl"]
 resolver = "2"
 
@@ -9,7 +7,7 @@ resolver = "2"
 authors = ["Robin Freyler <robinfreyler@web.de>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
-publish = false # Use `release.sh`
+publish = false                                                     # Use `release.sh`
 documentation = "https://docs.rs/modular-bitfield"
 repository = "https://github.com/modular-bitfield/modular-bitfield"
 rust-version = "1.70.0"
@@ -27,7 +25,7 @@ repository = "https://github.com/robbepop/modular-bitfield"
 documentation = "https://docs.rs/modular-bitfield"
 description = "Allows to easily define bitfield types with modular building blocks."
 categories = ["data-structures", "no-std"]
-keywords   = ["bitfield", "bit", "bitfields"]
+keywords = ["bitfield", "bit", "bitfields"]
 
 autotests = false
 
@@ -55,9 +53,19 @@ name = "cmp_bitfield_crate"
 path = "benches/cmp_bitfield_crate.rs"
 harness = false
 
+[[bench]]
+
+name = "adt_performance"
+path = "benches/adt_performance.rs"
+harness = false
+
 [[bin]]
 name = "playground"
 path = "playground.rs"
+
+[[bin]]
+name = "expand_example"
+path = "expand_example.rs"
 
 [dependencies]
 modular-bitfield-impl = { path = "impl", version = "0.11.2" }
@@ -65,8 +73,4 @@ static_assertions = "1.1"
 
 [profile.bench]
 codegen-units = 1
-
-[workspace]
-members = [
-    "impl"
-]
+debug = true

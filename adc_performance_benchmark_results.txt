@@ -1,0 +1,170 @@
+SimpleAdt_into_bytes/First
+                        time:   [6.4529 ns 6.4687 ns 6.4956 ns]
+Found 8 outliers among 100 measurements (8.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  5 (5.00%) high severe
+SimpleAdt_into_bytes/Second
+                        time:   [6.4092 ns 6.4157 ns 6.4228 ns]
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low severe
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+SimpleAdt_into_bytes/Third
+                        time:   [6.3361 ns 6.3439 ns 6.3525 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+SimpleAdt_into_bytes/Fourth
+                        time:   [6.6451 ns 6.6502 ns 6.6552 ns]
+Found 8 outliers among 100 measurements (8.00%)
+  4 (4.00%) low severe
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+SimpleAdt_from_bytes/First
+                        time:   [6.3645 ns 6.3712 ns 6.3785 ns]
+Found 9 outliers among 100 measurements (9.00%)
+  1 (1.00%) low mild
+  4 (4.00%) high mild
+  4 (4.00%) high severe
+SimpleAdt_from_bytes/Second
+                        time:   [6.3374 ns 6.3447 ns 6.3524 ns]
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low mild
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+SimpleAdt_from_bytes/Third
+                        time:   [6.3861 ns 6.4059 ns 6.4275 ns]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+SimpleAdt_from_bytes/Fourth
+                        time:   [6.3555 ns 6.3734 ns 6.3994 ns]
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+SimpleAdt_roundtrip/First
+                        time:   [11.628 ns 11.646 ns 11.665 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+SimpleAdt_roundtrip/Second
+                        time:   [10.034 ns 10.055 ns 10.078 ns]
+Found 16 outliers among 100 measurements (16.00%)
+  1 (1.00%) low mild
+  11 (11.00%) high mild
+  4 (4.00%) high severe
+SimpleAdt_roundtrip/Unit
+                        time:   [8.8813 ns 8.8905 ns 8.8993 ns]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+
+NestedAdt/into_bytes_this
+                        time:   [14.187 ns 15.546 ns 17.417 ns]
+Found 8 outliers among 100 measurements (8.00%)
+  8 (8.00%) high severe
+NestedAdt/into_bytes_that
+                        time:   [9.3509 ns 9.3969 ns 9.4441 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+NestedAdt/from_bytes    time:   [13.500 ns 13.799 ns 14.224 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+NestedAdt/roundtrip     time:   [30.740 ns 30.783 ns 30.831 ns]
+Found 9 outliers among 100 measurements (9.00%)
+  3 (3.00%) low mild
+  6 (6.00%) high mild
+
+LargeAdt/Small          time:   [6.6947 ns 6.7135 ns 6.7329 ns]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+LargeAdt/Medium         time:   [9.5428 ns 9.5636 ns 9.5887 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+LargeAdt/Large          time:   [6.7962 ns 6.8107 ns 6.8271 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+LargeAdt/Nested         time:   [13.844 ns 13.878 ns 13.926 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+LargeAdt/Unit           time:   [7.0765 ns 7.1573 ns 7.2681 ns]
+Found 6 outliers among 100 measurements (6.00%)
+  3 (3.00%) high mild
+  3 (3.00%) high severe
+
+TaggedAdt/TypeA         time:   [8.8617 ns 8.8713 ns 8.8842 ns]
+Found 11 outliers among 100 measurements (11.00%)
+  2 (2.00%) low severe
+  2 (2.00%) low mild
+  4 (4.00%) high mild
+  3 (3.00%) high severe
+TaggedAdt/TypeB         time:   [6.3892 ns 6.4099 ns 6.4323 ns]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+TaggedAdt/TypeC         time:   [9.2406 ns 9.2629 ns 9.2858 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+TaggedAdt/TypeD_unit    time:   [4.8118 ns 4.8241 ns 4.8379 ns]
+Found 10 outliers among 100 measurements (10.00%)
+  3 (3.00%) low mild
+  2 (2.00%) high mild
+  5 (5.00%) high severe
+TaggedAdt/roundtrip     time:   [11.589 ns 11.610 ns 11.632 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+
+Handwritten_ADT/into_bytes_first
+                        time:   [3.8081 ns 3.8171 ns 3.8264 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Handwritten_ADT/into_bytes_second
+                        time:   [3.8075 ns 3.8190 ns 3.8349 ns]
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Handwritten_ADT/into_bytes_unit
+                        time:   [11.931 ns 13.256 ns 14.705 ns]
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+Handwritten_ADT/from_bytes
+                        time:   [10.514 ns 12.408 ns 14.365 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Handwritten_ADT/roundtrip
+                        time:   [3.8872 ns 3.9011 ns 3.9196 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) high mild
+  4 (4.00%) high severe
+
+Bitfield_Usage/adt_packet_get
+                        time:   [6.0855 ns 6.0918 ns 6.0983 ns]
+Found 6 outliers among 100 measurements (6.00%)
+  3 (3.00%) low mild
+  3 (3.00%) high mild
+Bitfield_Usage/adt_packet_set
+                        time:   [3.4991 ns 3.5046 ns 3.5112 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+Bitfield_Usage/nested_adt_packet_get
+                        time:   [11.983 ns 12.008 ns 12.043 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  1 (1.00%) high severe
