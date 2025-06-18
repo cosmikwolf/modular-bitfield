@@ -17,7 +17,7 @@ pub fn generate(input: TokenStream2) -> TokenStream2 {
                     #output
                 };
             }
-        },
+        }
         Err(err) => err.to_compile_error(),
     }
 }
@@ -35,14 +35,17 @@ fn generate_or_error(input: TokenStream2) -> syn::Result<TokenStream2> {
                 brace_token: data_enum.brace_token,
                 variants: data_enum.variants,
             };
-            
+
             // Check if this enum has data variants
-            let has_data_variants = item_enum.variants.iter().any(|v| !matches!(v.fields, syn::Fields::Unit));
-            
+            let has_data_variants = item_enum
+                .variants
+                .iter()
+                .any(|v| !matches!(v.fields, syn::Fields::Unit));
+
             if has_data_variants {
                 // Parse attributes for variable enum
                 let attrs_result = variable_enum::parse_attrs(&item_enum.attrs);
-                
+
                 match attrs_result {
                     Ok(attrs) => {
                         // Use variable enum logic for enums with data
@@ -54,7 +57,7 @@ fn generate_or_error(input: TokenStream2) -> syn::Result<TokenStream2> {
                 // Simple unit-only enum
                 simple_enum::generate_simple_enum(&item_enum)
             }
-        },
+        }
         syn::Data::Struct(_) => Err(format_err!(
             input,
             "structs are not supported as bitfield specifiers",

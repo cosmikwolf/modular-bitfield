@@ -1,7 +1,7 @@
-use crate::bitfield::field_config::FieldConfig;
 use super::field_config::{VariableFieldConfig, VariantRole};
-use std::collections::HashMap;
+use crate::bitfield::field_config::FieldConfig;
 use proc_macro2::Span;
+use std::collections::HashMap;
 
 /// Storage for variable field configurations
 #[derive(Default)]
@@ -16,7 +16,11 @@ impl VariableFieldConfigs {
     }
 
     /// Set variant discriminator for a field
-    pub fn set_variant_discriminator(&mut self, index: usize, span: Span) -> Result<(), syn::Error> {
+    pub fn set_variant_discriminator(
+        &mut self,
+        index: usize,
+        span: Span,
+    ) -> Result<(), syn::Error> {
         let config = self.configs.entry(index).or_default();
         config.variant_discriminator(span)
     }
@@ -26,17 +30,24 @@ impl VariableFieldConfigs {
         let config = self.configs.entry(index).or_default();
         config.variant_data(span)
     }
-    
 }
 
 /// Extension trait for field configuration to work with variable bits
 pub trait VariableFieldConfigExt {
     /// Get the variant role for this field from external variable config
-    fn variant_role(&self, field_index: usize, variable_configs: &VariableFieldConfigs) -> Option<VariantRole>;
+    fn variant_role(
+        &self,
+        field_index: usize,
+        variable_configs: &VariableFieldConfigs,
+    ) -> Option<VariantRole>;
 
     /// Check if this field is a variant discriminator
     #[allow(dead_code)]
-    fn is_variant_discriminator(&self, field_index: usize, variable_configs: &VariableFieldConfigs) -> bool;
+    fn is_variant_discriminator(
+        &self,
+        field_index: usize,
+        variable_configs: &VariableFieldConfigs,
+    ) -> bool;
 
     /// Check if this field is variant data
     #[allow(dead_code)]
@@ -48,19 +59,33 @@ pub trait VariableFieldConfigExt {
 }
 
 impl VariableFieldConfigExt for FieldConfig {
-    fn variant_role(&self, field_index: usize, variable_configs: &VariableFieldConfigs) -> Option<VariantRole> {
+    fn variant_role(
+        &self,
+        field_index: usize,
+        variable_configs: &VariableFieldConfigs,
+    ) -> Option<VariantRole> {
         variable_configs.get(field_index)?.variant_role()
     }
 
-    fn is_variant_discriminator(&self, field_index: usize, variable_configs: &VariableFieldConfigs) -> bool {
-        variable_configs.get(field_index).is_some_and(super::field_config::VariableFieldConfig::is_variant_discriminator)
+    fn is_variant_discriminator(
+        &self,
+        field_index: usize,
+        variable_configs: &VariableFieldConfigs,
+    ) -> bool {
+        variable_configs
+            .get(field_index)
+            .is_some_and(super::field_config::VariableFieldConfig::is_variant_discriminator)
     }
 
     fn is_variant_data(&self, field_index: usize, variable_configs: &VariableFieldConfigs) -> bool {
-        variable_configs.get(field_index).is_some_and(super::field_config::VariableFieldConfig::is_variant_data)
+        variable_configs
+            .get(field_index)
+            .is_some_and(super::field_config::VariableFieldConfig::is_variant_data)
     }
 
     fn is_fixed_field(&self, field_index: usize, variable_configs: &VariableFieldConfigs) -> bool {
-        variable_configs.get(field_index).map_or(true, |c| c.variant_role().is_none())
+        variable_configs
+            .get(field_index)
+            .map_or(true, |c| c.variant_role().is_none())
     }
 }

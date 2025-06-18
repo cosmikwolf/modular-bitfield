@@ -118,7 +118,7 @@ impl Config {
                         "bits tuple cannot be empty"
                     ));
                 }
-                
+
                 // Validate sizes are in non-decreasing order (optional constraint for performance)
                 for window in sizes.windows(2) {
                     if window[1] < window[0] {
@@ -128,7 +128,7 @@ impl Config {
                         ));
                     }
                 }
-                
+
                 self.bits(super::config::BitsConfig::Variable(sizes), name_value.span())?;
             }
             invalid => {
@@ -160,7 +160,6 @@ impl Config {
         }
         Ok(())
     }
-
 
     /// Feeds the given parameters to the `#[bitfield]` configuration.
     ///
@@ -210,33 +209,34 @@ impl Config {
 mod tests {
     use super::*;
     use quote::quote;
-    
+
     #[test]
     fn test_param_args_parse() {
         // Test parsing empty parameters
         let empty: ParamArgs = syn::parse2(quote! {}).unwrap();
         assert_eq!(empty.args.len(), 0);
-        
+
         // Test parsing single parameter
         let single: ParamArgs = syn::parse2(quote! { bits = 32 }).unwrap();
         assert_eq!(single.args.len(), 1);
-        
+
         // Test parsing multiple parameters
-        let multiple: ParamArgs = syn::parse2(quote! { bits = 32, filled = true, bytes = 4 }).unwrap();
+        let multiple: ParamArgs =
+            syn::parse2(quote! { bits = 32, filled = true, bytes = 4 }).unwrap();
         assert_eq!(multiple.args.len(), 3);
-        
+
         // Test parsing with trailing comma
         let trailing: ParamArgs = syn::parse2(quote! { bits = 32, }).unwrap();
         assert_eq!(trailing.args.len(), 1);
     }
-    
+
     #[test]
     fn test_param_args_into_iterator() {
         let params: ParamArgs = syn::parse2(quote! { bits = 32, filled = true }).unwrap();
         let args: Vec<_> = params.into_iter().collect();
         assert_eq!(args.len(), 2);
     }
-    
+
     #[test]
     fn test_feed_int_param_valid() {
         let meta: syn::Meta = syn::parse_quote! { bytes = 4 };
@@ -244,18 +244,18 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let mut called = false;
         let result = Config::feed_int_param(&name_value, "bytes", |value, _span| {
             assert_eq!(value, 4);
             called = true;
             Ok(())
         });
-        
+
         assert!(result.is_ok());
         assert!(called);
     }
-    
+
     #[test]
     fn test_feed_int_param_invalid_value() {
         let meta: syn::Meta = syn::parse_quote! { bytes = "string" };
@@ -263,13 +263,13 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = Config::feed_int_param(&name_value, "bytes", |_value, _span| Ok(()));
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert!(err.to_string().contains("invalid value argument"));
     }
-    
+
     #[test]
     fn test_feed_int_param_malformed_integer() {
         // Create a meta with an integer that's too large
@@ -278,13 +278,13 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = Config::feed_int_param(&name_value, "bytes", |_value, _span| Ok(()));
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert!(err.to_string().contains("malformatted integer value"));
     }
-    
+
     #[test]
     fn test_feed_bytes_param() {
         let mut config = Config::default();
@@ -293,13 +293,13 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bytes_param(&name_value);
         assert!(result.is_ok());
         assert!(config.bytes.is_some());
         assert_eq!(config.bytes.unwrap().value, 8);
     }
-    
+
     #[test]
     fn test_feed_bits_param_single_value() {
         let mut config = Config::default();
@@ -308,13 +308,16 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_ok());
         assert!(config.bits.is_some());
-        assert!(matches!(config.bits.unwrap().value, super::super::config::BitsConfig::Fixed(32)));
+        assert!(matches!(
+            config.bits.unwrap().value,
+            super::super::config::BitsConfig::Fixed(32)
+        ));
     }
-    
+
     #[test]
     fn test_feed_bits_param_tuple() {
         let mut config = Config::default();
@@ -323,7 +326,7 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_ok());
         assert!(config.bits.is_some());
@@ -334,7 +337,7 @@ mod tests {
             _ => panic!("Expected Variable bits config"),
         }
     }
-    
+
     #[test]
     fn test_feed_bits_param_empty_tuple() {
         let mut config = Config::default();
@@ -343,12 +346,15 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("bits tuple cannot be empty"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("bits tuple cannot be empty"));
     }
-    
+
     #[test]
     fn test_feed_bits_param_decreasing_order() {
         let mut config = Config::default();
@@ -357,12 +363,15 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("non-decreasing order"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("non-decreasing order"));
     }
-    
+
     #[test]
     fn test_feed_bits_param_invalid_tuple_element() {
         let mut config = Config::default();
@@ -371,27 +380,34 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("invalid element in bits tuple"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("invalid element in bits tuple"));
     }
-    
+
     #[test]
     fn test_feed_bits_param_malformed_int_in_tuple() {
         let mut config = Config::default();
         // Create a tuple with an integer that's too large
-        let meta: syn::Meta = syn::parse_quote! { bits = (32, 99999999999999999999999999999999, 128) };
+        let meta: syn::Meta =
+            syn::parse_quote! { bits = (32, 99999999999999999999999999999999, 128) };
         let name_value = match meta {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("malformatted integer value"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("malformatted integer value"));
     }
-    
+
     #[test]
     fn test_feed_bits_param_invalid_type() {
         let mut config = Config::default();
@@ -400,12 +416,15 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("invalid value argument"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("invalid value argument"));
     }
-    
+
     #[test]
     fn test_feed_filled_param_true() {
         let mut config = Config::default();
@@ -414,13 +433,13 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_filled_param(&name_value);
         assert!(result.is_ok());
         assert!(config.filled.is_some());
         assert_eq!(config.filled.unwrap().value, true);
     }
-    
+
     #[test]
     fn test_feed_filled_param_false() {
         let mut config = Config::default();
@@ -429,13 +448,13 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_filled_param(&name_value);
         assert!(result.is_ok());
         assert!(config.filled.is_some());
         assert_eq!(config.filled.unwrap().value, false);
     }
-    
+
     #[test]
     fn test_feed_filled_param_invalid() {
         let mut config = Config::default();
@@ -444,12 +463,15 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_filled_param(&name_value);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("invalid value argument"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("invalid value argument"));
     }
-    
+
     #[test]
     fn test_feed_params_all_types() {
         let mut config = Config::default();
@@ -457,59 +479,73 @@ mod tests {
             bits = 32,
             bytes = 4,
             filled = true
-        }).unwrap();
-        
+        })
+        .unwrap();
+
         let result = config.feed_params(params);
         assert!(result.is_ok());
         assert!(config.bits.is_some());
         assert!(config.bytes.is_some());
         assert!(config.filled.is_some());
     }
-    
+
     #[test]
     fn test_feed_params_unsupported_name_value() {
         let mut config = Config::default();
         let params: ParamArgs = syn::parse2(quote! {
             unknown = 42
-        }).unwrap();
-        
+        })
+        .unwrap();
+
         let result = config.feed_params(params);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("unsupported #[bitfield] attribute"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("unsupported #[bitfield] attribute"));
     }
-    
+
     #[test]
     fn test_feed_params_path_attribute() {
         let mut config = Config::default();
         let params: ParamArgs = syn::parse2(quote! {
             some_flag
-        }).unwrap();
-        
+        })
+        .unwrap();
+
         let result = config.feed_params(params);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("unsupported #[bitfield] attribute"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("unsupported #[bitfield] attribute"));
     }
-    
+
     #[test]
     fn test_feed_params_list_attribute() {
         let mut config = Config::default();
         let params: ParamArgs = syn::parse2(quote! {
             derive(Debug)
-        }).unwrap();
-        
+        })
+        .unwrap();
+
         let result = config.feed_params(params);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("unsupported #[bitfield] attribute format"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("unsupported #[bitfield] attribute format"));
     }
-    
+
     #[test]
     fn test_feed_params_multiple_errors_stops_on_first() {
         let mut config = Config::default();
         let params: ParamArgs = syn::parse2(quote! {
             unknown1 = 42,
             unknown2 = 84
-        }).unwrap();
-        
+        })
+        .unwrap();
+
         let result = config.feed_params(params);
         assert!(result.is_err());
         // Should stop on first error
@@ -518,7 +554,7 @@ mod tests {
         // The error should mention one of the unknown attributes
         // (we can't predict which one comes first in iteration order)
     }
-    
+
     #[test]
     fn test_feed_int_param_callback_error() {
         let meta: syn::Meta = syn::parse_quote! { bytes = 4 };
@@ -526,15 +562,15 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = Config::feed_int_param(&name_value, "bytes", |_value, span| {
             Err(format_err!(span, "callback error"))
         });
-        
+
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("callback error"));
     }
-    
+
     #[test]
     #[should_panic(expected = "assertion")]
     fn test_feed_int_param_wrong_name() {
@@ -543,11 +579,11 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         // This should panic because name doesn't match
         let _ = Config::feed_int_param(&name_value, "bytes", |_value, _span| Ok(()));
     }
-    
+
     #[test]
     #[should_panic(expected = "assertion")]
     fn test_feed_bits_param_wrong_name() {
@@ -557,11 +593,11 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         // This should panic because name doesn't match
         let _ = config.feed_bits_param(&name_value);
     }
-    
+
     #[test]
     #[should_panic(expected = "assertion")]
     fn test_feed_filled_param_wrong_name() {
@@ -571,11 +607,11 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         // This should panic because name doesn't match
         let _ = config.feed_filled_param(&name_value);
     }
-    
+
     #[test]
     fn test_feed_bits_param_malformed_single_value() {
         let mut config = Config::default();
@@ -585,12 +621,15 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("invalid integer value"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("invalid integer value"));
     }
-    
+
     #[test]
     fn test_feed_bits_param_non_decreasing_equal_values() {
         let mut config = Config::default();
@@ -600,7 +639,7 @@ mod tests {
             syn::Meta::NameValue(nv) => nv,
             _ => panic!("Expected NameValue"),
         };
-        
+
         let result = config.feed_bits_param(&name_value);
         assert!(result.is_ok());
         match &config.bits.unwrap().value {
@@ -610,7 +649,7 @@ mod tests {
             _ => panic!("Expected Variable bits config"),
         }
     }
-    
+
     #[test]
     fn test_param_args_complex_parsing() {
         // Test with various whitespace and formatting
@@ -618,7 +657,8 @@ mod tests {
             bits = 32 ,
             filled = true ,
             bytes = 4
-        }).unwrap();
+        })
+        .unwrap();
         assert_eq!(params.args.len(), 3);
     }
 }

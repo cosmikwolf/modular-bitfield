@@ -1,13 +1,7 @@
-use crate::bitfield::{
-    config::Config,
-    field_info::FieldInfo,
-    BitfieldStruct,
-};
 use super::{
-    errors::VariableBitsError,
-    field_config::VariantRole,
-    field_config_ext::VariableFieldConfigExt,
+    errors::VariableBitsError, field_config::VariantRole, field_config_ext::VariableFieldConfigExt,
 };
+use crate::bitfield::{config::Config, field_info::FieldInfo, BitfieldStruct};
 use syn::{self, spanned::Spanned as _};
 
 /// Analysis result for variable-size structs
@@ -40,10 +34,8 @@ impl core::fmt::Debug for VariableStructAnalysis {
 /// Extension trait for variable bits analysis
 pub trait VariableBitsAnalysis {
     /// Analyze variable-size struct configuration
-    fn analyze_variable_bits(
-        &self,
-        config: &Config,
-    ) -> syn::Result<Option<VariableStructAnalysis>>;
+    fn analyze_variable_bits(&self, config: &Config)
+        -> syn::Result<Option<VariableStructAnalysis>>;
 }
 
 impl VariableBitsAnalysis for BitfieldStruct {
@@ -69,7 +61,9 @@ impl VariableBitsAnalysis for BitfieldStruct {
         let mut fixed_fields = Vec::new();
 
         for (index, field_info) in field_infos.iter().enumerate() {
-            let variant_role = field_info.config.variant_role(field_info.index, &config.variable_field_configs);
+            let variant_role = field_info
+                .config
+                .variant_role(field_info.index, &config.variable_field_configs);
             match variant_role {
                 Some(VariantRole::Discriminator) => {
                     if let Some((_, existing_field)) = discriminator_field {
@@ -244,9 +238,12 @@ fn extract_bits_from_type(ty: &syn::Type) -> syn::Result<usize> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::bitfield::{BitfieldStruct, config::{Config, ConfigValue}};
-    use syn::parse_quote;
+    use crate::bitfield::{
+        config::{Config, ConfigValue},
+        BitfieldStruct,
+    };
     use proc_macro2::Span;
+    use syn::parse_quote;
 
     #[test]
     fn test_extract_bits_from_type_valid() {
@@ -259,8 +256,8 @@ mod tests {
             ("B32", 32),
             ("B64", 64),
             ("B128", 128),
-            ("B17", 17),  // Odd size
-            ("B99", 99),  // Large odd size
+            ("B17", 17), // Odd size
+            ("B99", 99), // Large odd size
         ];
 
         for (type_name, expected_bits) in test_cases {
@@ -285,14 +282,14 @@ mod tests {
     fn test_extract_bits_from_type_invalid() {
         // Test invalid types
         let invalid_types = vec![
-            "u8",       // Not a B type
-            "B",        // No number
-            "B0",       // Zero bits
-            "B129",     // Too many bits
-            "B1000",    // Way too many bits
-            "Bits8",    // Wrong prefix
-            "8B",       // Wrong order
-            "B8u",      // Extra suffix
+            "u8",         // Not a B type
+            "B",          // No number
+            "B0",         // Zero bits
+            "B129",       // Too many bits
+            "B1000",      // Way too many bits
+            "Bits8",      // Wrong prefix
+            "8B",         // Wrong order
+            "B8u",        // Extra suffix
             "Option<B8>", // Generic type
         ];
 
@@ -304,7 +301,7 @@ mod tests {
                 "B129" => syn::parse_quote! { B129 },
                 "B1000" => syn::parse_quote! { B1000 },
                 "Bits8" => syn::parse_quote! { Bits8 },
-                "8B" => continue, // Can't parse this as valid Rust
+                "8B" => continue,  // Can't parse this as valid Rust
                 "B8u" => continue, // Can't parse this as valid Rust
                 "Option<B8>" => syn::parse_quote! { Option<B8> },
                 _ => panic!("Unknown type"),
@@ -338,10 +335,12 @@ mod tests {
                 field2: B16,
             }
         };
-        
-        let bitfield = BitfieldStruct { item_struct: input.clone() };
+
+        let bitfield = BitfieldStruct {
+            item_struct: input.clone(),
+        };
         let config = Config::default();
-        
+
         let result = bitfield.analyze_variable_bits(&config).unwrap();
         assert!(result.is_none());
     }
@@ -359,22 +358,30 @@ mod tests {
                 fixed_field: B6,
             }
         };
-        
-        let bitfield = BitfieldStruct { item_struct: input.clone() };
+
+        let bitfield = BitfieldStruct {
+            item_struct: input.clone(),
+        };
         let mut config = Config::default();
         config.bits = Some(ConfigValue {
             span: Span::call_site(),
             value: crate::bitfield::config::BitsConfig::Variable(vec![32, 64]),
         });
-        
+
         // Add field configs
-        config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-        config.variable_field_configs.set_variant_data(1, Span::call_site()).unwrap();
-        
+        config
+            .variable_field_configs
+            .set_variant_discriminator(0, Span::call_site())
+            .unwrap();
+        config
+            .variable_field_configs
+            .set_variant_data(1, Span::call_site())
+            .unwrap();
+
         let result = bitfield.analyze_variable_bits(&config);
         assert!(result.is_ok());
         let analysis = result.unwrap().unwrap();
-        
+
         assert_eq!(analysis.discriminator_field_index, 0);
         assert_eq!(analysis._data_field_index, 1);
         assert_eq!(analysis._fixed_field_indices, vec![2]);
@@ -394,17 +401,22 @@ mod tests {
                 fixed_field: B6,
             }
         };
-        
-        let bitfield = BitfieldStruct { item_struct: input.clone() };
+
+        let bitfield = BitfieldStruct {
+            item_struct: input.clone(),
+        };
         let mut config = Config::default();
         config.bits = Some(ConfigValue {
             span: Span::call_site(),
             value: crate::bitfield::config::BitsConfig::Variable(vec![32, 64]),
         });
-        
+
         // Only add data field config
-        config.variable_field_configs.set_variant_data(0, Span::call_site()).unwrap();
-        
+        config
+            .variable_field_configs
+            .set_variant_data(0, Span::call_site())
+            .unwrap();
+
         let result = bitfield.analyze_variable_bits(&config);
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -422,17 +434,22 @@ mod tests {
                 fixed_field: B6,
             }
         };
-        
-        let bitfield = BitfieldStruct { item_struct: input.clone() };
+
+        let bitfield = BitfieldStruct {
+            item_struct: input.clone(),
+        };
         let mut config = Config::default();
         config.bits = Some(ConfigValue {
             span: Span::call_site(),
             value: crate::bitfield::config::BitsConfig::Variable(vec![32, 64]),
         });
-        
+
         // Only add discriminator field config
-        config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-        
+        config
+            .variable_field_configs
+            .set_variant_discriminator(0, Span::call_site())
+            .unwrap();
+
         let result = bitfield.analyze_variable_bits(&config);
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -453,19 +470,30 @@ mod tests {
                 data: DataEnum,
             }
         };
-        
-        let bitfield = BitfieldStruct { item_struct: input.clone() };
+
+        let bitfield = BitfieldStruct {
+            item_struct: input.clone(),
+        };
         let mut config = Config::default();
         config.bits = Some(ConfigValue {
             span: Span::call_site(),
             value: crate::bitfield::config::BitsConfig::Variable(vec![32, 64]),
         });
-        
+
         // Add multiple discriminator configs
-        config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-        config.variable_field_configs.set_variant_discriminator(1, Span::call_site()).unwrap();
-        config.variable_field_configs.set_variant_data(2, Span::call_site()).unwrap();
-        
+        config
+            .variable_field_configs
+            .set_variant_discriminator(0, Span::call_site())
+            .unwrap();
+        config
+            .variable_field_configs
+            .set_variant_discriminator(1, Span::call_site())
+            .unwrap();
+        config
+            .variable_field_configs
+            .set_variant_data(2, Span::call_site())
+            .unwrap();
+
         let result = bitfield.analyze_variable_bits(&config);
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -485,17 +513,25 @@ mod tests {
                 fixed_field: B8,
             }
         };
-        
-        let bitfield = BitfieldStruct { item_struct: input.clone() };
+
+        let bitfield = BitfieldStruct {
+            item_struct: input.clone(),
+        };
         let mut config = Config::default();
         config.bits = Some(ConfigValue {
             span: Span::call_site(),
             value: crate::bitfield::config::BitsConfig::Variable(vec![8, 16]),
         });
-        
-        config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-        config.variable_field_configs.set_variant_data(1, Span::call_site()).unwrap();
-        
+
+        config
+            .variable_field_configs
+            .set_variant_discriminator(0, Span::call_site())
+            .unwrap();
+        config
+            .variable_field_configs
+            .set_variant_data(1, Span::call_site())
+            .unwrap();
+
         let result = bitfield.analyze_variable_bits(&config);
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -510,18 +546,18 @@ mod tests {
                 discriminator: B1,
             }
         };
-        
+
         let field = &input.fields.iter().next().unwrap();
         let field_info = crate::bitfield::field_info::FieldInfo {
             field,
             index: 0,
             config: crate::bitfield::field_config::FieldConfig::default(),
         };
-        
+
         // Test with 2 variants (fits in 1 bit)
         let result = validate_discriminator_capacity(&(0, &field_info), 2);
         assert!(result.is_ok());
-        
+
         // Test with 3 variants (doesn't fit in 1 bit)
         let result = validate_discriminator_capacity(&(0, &field_info), 3);
         assert!(result.is_err());
@@ -537,26 +573,32 @@ mod tests {
                 field2: B16,
             }
         };
-        
+
         let fields: Vec<_> = input.fields.iter().collect();
-        
+
         let discriminator_info = crate::bitfield::field_info::FieldInfo {
             field: fields[0],
             index: 0,
             config: crate::bitfield::field_config::FieldConfig::default(),
         };
-        
-        let fixed_infos: Vec<_> = fields[1..].iter().enumerate().map(|(i, field)| {
-            crate::bitfield::field_info::FieldInfo {
+
+        let fixed_infos: Vec<_> = fields[1..]
+            .iter()
+            .enumerate()
+            .map(|(i, field)| crate::bitfield::field_info::FieldInfo {
                 field: *field,
                 index: i + 1,
                 config: crate::bitfield::field_config::FieldConfig::default(),
-            }
-        }).collect();
-        
-        let fixed_refs: Vec<_> = fixed_infos.iter().enumerate().map(|(i, info)| (i + 1, info)).collect();
+            })
+            .collect();
+
+        let fixed_refs: Vec<_> = fixed_infos
+            .iter()
+            .enumerate()
+            .map(|(i, info)| (i + 1, info))
+            .collect();
         let result = calculate_fixed_field_bits(&fixed_refs, &(0, &discriminator_info));
-        
+
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 26); // 2 + 8 + 16
     }
@@ -573,7 +615,7 @@ mod tests {
             data_enum_type: parse_quote! { DataEnum },
             discriminator_bits: 2,
         };
-        
+
         let debug_str = format!("{:?}", analysis);
         assert!(debug_str.contains("VariableStructAnalysis"));
         assert!(debug_str.contains("discriminator_field_index: 0"));

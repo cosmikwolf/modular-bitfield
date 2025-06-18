@@ -10,10 +10,10 @@ fn test_tuple_size_mismatch_error() {
         found: 5,
         span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
+
     assert!(error_msg.contains("variable_bits tuple must have 3 elements"));
     assert!(error_msg.contains("found 5"));
 }
@@ -26,10 +26,10 @@ fn test_data_type_size_mismatch_error() {
         actual_bits: "u8".to_string(),
         span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
+
     assert!(error_msg.contains("variant SmallData"));
     assert!(error_msg.contains("data type u8"));
     assert!(error_msg.contains("must have exactly 16 bits"));
@@ -41,11 +41,12 @@ fn test_missing_variant_field_discriminator() {
         field_type: "discriminator",
         span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
-    assert!(error_msg.contains("variable_bits structs require exactly one #[variant_discriminator] field"));
+
+    assert!(error_msg
+        .contains("variable_bits structs require exactly one #[variant_discriminator] field"));
 }
 
 #[test]
@@ -54,10 +55,10 @@ fn test_missing_variant_field_data() {
         field_type: "data",
         span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
+
     assert!(error_msg.contains("variable_bits structs require exactly one #[variant_data] field"));
 }
 
@@ -68,10 +69,10 @@ fn test_multiple_variant_fields_discriminator() {
         first_span: Span::call_site(),
         second_span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
+
     assert!(error_msg.contains("found multiple #[variant_discriminator] fields"));
     assert!(error_msg.contains("only one allowed"));
 }
@@ -83,11 +84,10 @@ fn test_multiple_variant_fields_data() {
         first_span: Span::call_site(),
         second_span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
-    
+
     assert!(error_msg.contains("found multiple #[variant_data] fields"));
     assert!(error_msg.contains("only one allowed"));
     // The combined error message may not include both parts in to_string()
@@ -102,10 +102,10 @@ fn test_invalid_discriminant_range() {
         discriminator_bits: 2,
         span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
+
     assert!(error_msg.contains("discriminant value 7"));
     assert!(error_msg.contains("exceeds maximum 3"));
     assert!(error_msg.contains("for 2-bit discriminator field"));
@@ -118,10 +118,10 @@ fn test_conflicting_attributes() {
         attr2: "variant_data",
         span: Span::call_site(),
     };
-    
+
     let syn_error = error.to_syn_error();
     let error_msg = syn_error.to_string();
-    
+
     assert!(error_msg.contains("cannot use both #[variant_discriminator] and #[variant_data]"));
     assert!(error_msg.contains("on the same item"));
 }
@@ -136,7 +136,7 @@ fn test_discriminant_range_edge_cases() {
         (4, 15, 4),  // 4 bits: max discriminant 15
         (8, 255, 8), // 8 bits: max discriminant 255
     ];
-    
+
     for (_bits, max_allowed, discriminator_bits) in test_cases {
         let error = VariableBitsError::InvalidDiscriminantRange {
             discriminant: max_allowed + 1,
@@ -144,13 +144,16 @@ fn test_discriminant_range_edge_cases() {
             discriminator_bits,
             span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         assert!(error_msg.contains(&format!("discriminant value {}", max_allowed + 1)));
         assert!(error_msg.contains(&format!("exceeds maximum {}", max_allowed)));
-        assert!(error_msg.contains(&format!("for {}-bit discriminator field", discriminator_bits)));
+        assert!(error_msg.contains(&format!(
+            "for {}-bit discriminator field",
+            discriminator_bits
+        )));
     }
 }
 
@@ -184,11 +187,11 @@ fn test_error_message_formatting() {
             vec!["cannot use both", "#[skip]", "#[variant_data]"],
         ),
     ];
-    
+
     for (error, expected_fragments) in errors {
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         for fragment in expected_fragments {
             assert!(
                 error_msg.contains(fragment),
@@ -205,17 +208,17 @@ fn test_error_spans_preserved() {
     // While we can't easily test span positions in unit tests,
     // we can verify that errors are created with the provided spans
     use proc_macro2::TokenStream;
-    
+
     let span = Span::call_site();
     let error = VariableBitsError::MissingVariantField {
         field_type: "discriminator",
         span,
     };
-    
+
     // Convert to syn error and back to tokens to verify span is used
     let syn_error = error.to_syn_error();
     let tokens: TokenStream = syn_error.to_compile_error();
-    
+
     // The compile error tokens should be non-empty
     assert!(!tokens.is_empty());
 }

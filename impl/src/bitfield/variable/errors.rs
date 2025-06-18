@@ -122,10 +122,10 @@ mod tests {
             found: 5,
             span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         assert!(error_msg.contains("variable_bits tuple must have 3 elements"));
         assert!(error_msg.contains("found 5"));
     }
@@ -138,10 +138,10 @@ mod tests {
             actual_bits: "u8".to_string(),
             span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         assert!(error_msg.contains("variant SmallData"));
         assert!(error_msg.contains("data type u8"));
         assert!(error_msg.contains("must have exactly 16 bits"));
@@ -153,11 +153,12 @@ mod tests {
             field_type: "discriminator",
             span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
-        assert!(error_msg.contains("variable_bits structs require exactly one #[variant_discriminator] field"));
+
+        assert!(error_msg
+            .contains("variable_bits structs require exactly one #[variant_discriminator] field"));
     }
 
     #[test]
@@ -166,11 +167,13 @@ mod tests {
             field_type: "data",
             span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
-        assert!(error_msg.contains("variable_bits structs require exactly one #[variant_data] field"));
+
+        assert!(
+            error_msg.contains("variable_bits structs require exactly one #[variant_data] field")
+        );
     }
 
     #[test]
@@ -180,10 +183,10 @@ mod tests {
             first_span: Span::call_site(),
             second_span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         assert!(error_msg.contains("found multiple #[variant_discriminator] fields"));
         assert!(error_msg.contains("only one allowed"));
     }
@@ -195,10 +198,10 @@ mod tests {
             first_span: Span::call_site(),
             second_span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         assert!(error_msg.contains("found multiple #[variant_data] fields"));
         assert!(error_msg.contains("only one allowed"));
     }
@@ -211,10 +214,10 @@ mod tests {
             discriminator_bits: 2,
             span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         assert!(error_msg.contains("discriminant value 7"));
         assert!(error_msg.contains("exceeds maximum 3"));
         assert!(error_msg.contains("for 2-bit discriminator field"));
@@ -227,10 +230,10 @@ mod tests {
             attr2: "variant_data",
             span: Span::call_site(),
         };
-        
+
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
-        
+
         assert!(error_msg.contains("cannot use both #[variant_discriminator] and #[variant_data]"));
         assert!(error_msg.contains("on the same item"));
     }

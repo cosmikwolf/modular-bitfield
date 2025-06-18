@@ -75,7 +75,9 @@ impl BitfieldStruct {
 
         // Check if this is a variable-size struct
         if let Ok(Some(analysis)) = self.analyze_variable_bits(config) {
-            return Some(VariableStructExpander::generate_variable_specifier_impl(self, &analysis));
+            return Some(VariableStructExpander::generate_variable_specifier_impl(
+                self, &analysis,
+            ));
         }
 
         let span = self.item_struct.span();

@@ -2,7 +2,7 @@
 
 use super::super::analysis::VariableBitsAnalysis;
 use crate::bitfield::{
-    config::{Config, ConfigValue, BitsConfig},
+    config::{BitsConfig, Config, ConfigValue},
     field_config::FieldConfig,
     BitfieldStruct,
 };
@@ -21,11 +21,11 @@ fn test_analyze_variable_bits_not_variable() {
             field2: B16,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
     let config = Config::default();
-    
+
     let result = bitfield.analyze_variable_bits(&config).unwrap();
     assert!(result.is_none());
 }
@@ -39,19 +39,21 @@ fn test_analyze_variable_bits_missing_discriminator() {
             other: B8,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
-    config.bits(
-        BitsConfig::Variable(vec![32, 64]),
-        Span::call_site()
-    ).unwrap();
-    
+    config
+        .bits(BitsConfig::Variable(vec![32, 64]), Span::call_site())
+        .unwrap();
+
     // Set up field configs - only mark data field
-    config.variable_field_configs.set_variant_data(0, Span::call_site()).unwrap();
-    
+    config
+        .variable_field_configs
+        .set_variant_data(0, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config);
     assert!(result.is_err());
     let err = result.unwrap_err();
@@ -67,19 +69,21 @@ fn test_analyze_variable_bits_missing_data() {
             other: B8,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
-    config.bits(
-        BitsConfig::Variable(vec![32, 64]),
-        Span::call_site()
-    ).unwrap();
-    
+    config
+        .bits(BitsConfig::Variable(vec![32, 64]), Span::call_site())
+        .unwrap();
+
     // Set up field configs - only mark discriminator field
-    config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-    
+    config
+        .variable_field_configs
+        .set_variant_discriminator(0, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config);
     assert!(result.is_err());
     let err = result.unwrap_err();
@@ -96,21 +100,29 @@ fn test_analyze_variable_bits_duplicate_discriminator() {
             data: DataEnum,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
-    config.bits(
-        BitsConfig::Variable(vec![32, 64]),
-        Span::call_site()
-    ).unwrap();
-    
+    config
+        .bits(BitsConfig::Variable(vec![32, 64]), Span::call_site())
+        .unwrap();
+
     // Mark two fields as discriminator
-    config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_discriminator(1, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_data(2, Span::call_site()).unwrap();
-    
+    config
+        .variable_field_configs
+        .set_variant_discriminator(0, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_discriminator(1, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_data(2, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config);
     assert!(result.is_err());
     let err = result.unwrap_err();
@@ -127,21 +139,29 @@ fn test_analyze_variable_bits_duplicate_data() {
             data2: DataEnum,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
-    config.bits(
-        BitsConfig::Variable(vec![32, 64]),
-        Span::call_site()
-    ).unwrap();
-    
+    config
+        .bits(BitsConfig::Variable(vec![32, 64]), Span::call_site())
+        .unwrap();
+
     // Mark two fields as data
-    config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_data(1, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_data(2, Span::call_site()).unwrap();
-    
+    config
+        .variable_field_configs
+        .set_variant_discriminator(0, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_data(1, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_data(2, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config);
     assert!(result.is_err());
     let err = result.unwrap_err();
@@ -159,20 +179,25 @@ fn test_analyze_variable_bits_size_validation() {
             fixed2: B16,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
     // Total size 32, but fixed fields = 4 + 16 + 16 = 36
-    config.bits(
-        BitsConfig::Variable(vec![32]),
-        Span::call_site()
-    ).unwrap();
-    
-    config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_data(1, Span::call_site()).unwrap();
-    
+    config
+        .bits(BitsConfig::Variable(vec![32]), Span::call_site())
+        .unwrap();
+
+    config
+        .variable_field_configs
+        .set_variant_discriminator(0, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_data(1, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config);
     assert!(result.is_err());
     let err = result.unwrap_err();
@@ -188,20 +213,28 @@ fn test_analyze_variable_bits_discriminator_capacity() {
             data: DataEnum,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
     // 5 configurations but discriminator can only hold 4 values
-    config.bits(
-        BitsConfig::Variable(vec![32, 40, 48, 56, 64]),
-        Span::call_site()
-    ).unwrap();
-    
-    config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_data(1, Span::call_site()).unwrap();
-    
+    config
+        .bits(
+            BitsConfig::Variable(vec![32, 40, 48, 56, 64]),
+            Span::call_site(),
+        )
+        .unwrap();
+
+    config
+        .variable_field_configs
+        .set_variant_discriminator(0, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_data(1, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config);
     assert!(result.is_err());
     let err = result.unwrap_err();
@@ -219,22 +252,27 @@ fn test_analyze_variable_bits_valid_configuration() {
             fixed2: B4,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
-    config.bits(
-        BitsConfig::Variable(vec![32, 64, 128]),
-        Span::call_site()
-    ).unwrap();
-    
-    config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_data(1, Span::call_site()).unwrap();
-    
+    config
+        .bits(BitsConfig::Variable(vec![32, 64, 128]), Span::call_site())
+        .unwrap();
+
+    config
+        .variable_field_configs
+        .set_variant_discriminator(0, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_data(1, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config).unwrap();
     assert!(result.is_some());
-    
+
     let analysis = result.unwrap();
     assert_eq!(analysis.discriminator_field_index, 0);
     assert_eq!(analysis._data_field_index, 1);
@@ -253,30 +291,36 @@ fn test_analyze_variable_bits_with_bits_attribute() {
             data: DataEnum,
         }
     };
-    
+
     let item_struct: syn::ItemStruct = syn::parse2(input).unwrap();
     let bitfield = BitfieldStruct { item_struct };
-    
+
     let mut config = Config::default();
-    config.bits(
-        BitsConfig::Variable(vec![32, 64]),
-        Span::call_site()
-    ).unwrap();
-    
+    config
+        .bits(BitsConfig::Variable(vec![32, 64]), Span::call_site())
+        .unwrap();
+
     // Set bits attribute on discriminator field
     let mut field_config = FieldConfig::default();
     field_config.bits = Some(ConfigValue::new(6, Span::call_site()));
-    config.field_configs.insert(0, ConfigValue::new(field_config, Span::call_site()));
-    
-    config.variable_field_configs.set_variant_discriminator(0, Span::call_site()).unwrap();
-    config.variable_field_configs.set_variant_data(1, Span::call_site()).unwrap();
-    
+    config
+        .field_configs
+        .insert(0, ConfigValue::new(field_config, Span::call_site()));
+
+    config
+        .variable_field_configs
+        .set_variant_discriminator(0, Span::call_site())
+        .unwrap();
+    config
+        .variable_field_configs
+        .set_variant_data(1, Span::call_site())
+        .unwrap();
+
     let result = bitfield.analyze_variable_bits(&config).unwrap();
     assert!(result.is_some());
-    
+
     let analysis = result.unwrap();
     assert_eq!(analysis.discriminator_bits, 6);
 }
 
 // Inferred mode test removed since we no longer support inferred mode
-

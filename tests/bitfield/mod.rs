@@ -13,8 +13,8 @@ mod repr;
 mod skip;
 mod test_bits_unification;
 mod variable_bits;
-mod variable_struct_test;
 mod variable_struct_advanced;
+mod variable_struct_test;
 
 use modular_bitfield::prelude::*;
 

@@ -229,7 +229,7 @@ impl HandwrittenMessage {
 
 fn bench_core_enum_construction() {
     println!("\n=== Core Enum Construction (32/64/128 bits) ===");
-    
+
     compare("Generated enum construction", &|| (), |_| {
         repeat(|| {
             black_box(GeneratedVariableEnum::Small(42));
@@ -237,7 +237,7 @@ fn bench_core_enum_construction() {
             black_box(GeneratedVariableEnum::Large(5678));
         });
     });
-    
+
     compare("Handwritten enum construction", &|| (), |_| {
         repeat(|| {
             black_box(HandwrittenVariableEnum::Small(42));
@@ -249,13 +249,13 @@ fn bench_core_enum_construction() {
 
 fn bench_core_enum_into_bytes() {
     println!("\n=== Core Enum Serialization (32/64/128 bits) ===");
-    
+
     let gen_data = [
         GeneratedVariableEnum::Small(42),
         GeneratedVariableEnum::Medium(1234),
         GeneratedVariableEnum::Large(5678),
     ];
-    
+
     compare("Generated into_bytes", &|| gen_data, |data| {
         repeat(|| {
             for item in data.iter().copied() {
@@ -263,13 +263,13 @@ fn bench_core_enum_into_bytes() {
             }
         });
     });
-    
+
     let hw_data = [
         HandwrittenVariableEnum::Small(42),
         HandwrittenVariableEnum::Medium(1234),
         HandwrittenVariableEnum::Large(5678),
     ];
-    
+
     compare("Handwritten into_bytes", &|| hw_data, |data| {
         repeat(|| {
             for item in data.iter().copied() {
@@ -281,27 +281,27 @@ fn bench_core_enum_into_bytes() {
 
 fn bench_core_enum_helpers() {
     println!("\n=== Core Enum Helper Methods (32/64/128 bits) ===");
-    
+
     let gen_data = GeneratedVariableEnum::Medium(1234);
     compare("Generated discriminant", &|| gen_data, |data| {
         repeat(|| {
             black_box(data.discriminant());
         });
     });
-    
+
     let hw_data = HandwrittenVariableEnum::Medium(1234);
     compare("Handwritten discriminant", &|| hw_data, |data| {
         repeat(|| {
             black_box(data.discriminant());
         });
     });
-    
+
     compare("Generated size", &|| gen_data, |data| {
         repeat(|| {
             black_box(data.size());
         });
     });
-    
+
     compare("Handwritten size", &|| hw_data, |data| {
         repeat(|| {
             black_box(data.size());
@@ -311,29 +311,42 @@ fn bench_core_enum_helpers() {
 
 fn bench_core_enum_deserialization() {
     println!("\n=== Core Enum Deserialization (32/64/128 bits) ===");
-    
+
     let test_cases = [(0u16, 42u128), (1u16, 1234u128), (2u16, 5678u128)];
-    
-    compare("Generated from_discriminant_and_bytes", &|| test_cases, |test_cases| {
-        repeat(|| {
-            for (disc, bytes) in test_cases.iter().copied() {
-                black_box(GeneratedVariableEnum::from_discriminant_and_bytes(disc as usize, bytes).unwrap());
-            }
-        });
-    });
-    
-    compare("Handwritten from_discriminant_and_bytes", &|| test_cases, |test_cases| {
-        repeat(|| {
-            for (disc, bytes) in test_cases.iter().copied() {
-                black_box(HandwrittenVariableEnum::from_discriminant_and_bytes(disc, bytes).unwrap());
-            }
-        });
-    });
+
+    compare(
+        "Generated from_discriminant_and_bytes",
+        &|| test_cases,
+        |test_cases| {
+            repeat(|| {
+                for (disc, bytes) in test_cases.iter().copied() {
+                    black_box(
+                        GeneratedVariableEnum::from_discriminant_and_bytes(disc as usize, bytes)
+                            .unwrap(),
+                    );
+                }
+            });
+        },
+    );
+
+    compare(
+        "Handwritten from_discriminant_and_bytes",
+        &|| test_cases,
+        |test_cases| {
+            repeat(|| {
+                for (disc, bytes) in test_cases.iter().copied() {
+                    black_box(
+                        HandwrittenVariableEnum::from_discriminant_and_bytes(disc, bytes).unwrap(),
+                    );
+                }
+            });
+        },
+    );
 }
 
 fn bench_core_static_methods() {
     println!("\n=== Core Static Methods (32/64/128 bits) ===");
-    
+
     compare("Generated size_for_discriminant", &|| (), |_| {
         repeat(|| {
             for disc in 0u16..=3u16 {
@@ -341,7 +354,7 @@ fn bench_core_static_methods() {
             }
         });
     });
-    
+
     compare("Handwritten size_for_discriminant", &|| (), |_| {
         repeat(|| {
             for disc in 0u16..=3u16 {
@@ -355,7 +368,7 @@ fn bench_core_static_methods() {
 
 fn bench_practical_enum_construction() {
     println!("\n=== Practical Enum Construction (8/16/32 bits) ===");
-    
+
     compare("Variable enum construction (all sizes)", &|| (), |_| {
         repeat(|| {
             black_box(VariableData::Small(42));
@@ -363,7 +376,7 @@ fn bench_practical_enum_construction() {
             black_box(VariableData::Large(0x12345678));
         });
     });
-    
+
     compare("Handwritten enum construction (all sizes)", &|| (), |_| {
         repeat(|| {
             black_box(HandwrittenData::Small(42));
@@ -375,13 +388,13 @@ fn bench_practical_enum_construction() {
 
 fn bench_practical_enum_serialization() {
     println!("\n=== Practical Enum Serialization (8/16/32 bits) ===");
-    
+
     let var_data = [
         VariableData::Small(42),
         VariableData::Medium(1234),
         VariableData::Large(0x12345678),
     ];
-    
+
     compare("Variable enum into_bytes", &|| var_data, |data| {
         repeat(|| {
             for item in data.iter() {
@@ -389,13 +402,13 @@ fn bench_practical_enum_serialization() {
             }
         });
     });
-    
+
     let hw_data = [
         HandwrittenData::Small(42),
         HandwrittenData::Medium(1234),
         HandwrittenData::Large(0x12345678),
     ];
-    
+
     compare("Handwritten enum into_bytes", &|| hw_data, |data| {
         repeat(|| {
             for item in data.iter() {
@@ -409,13 +422,13 @@ fn bench_practical_enum_serialization() {
 
 fn bench_bitfield_construction() {
     println!("\n=== Bitfield Construction ===");
-    
+
     compare("Variable bitfield construction", &|| (), |_| {
         repeat(|| {
             black_box(VariableMessage::new().with_data(VariableData::Large(0x12345678)));
         });
     });
-    
+
     compare("Handwritten struct construction", &|| (), |_| {
         repeat(|| {
             black_box(HandwrittenMessage {
@@ -424,7 +437,7 @@ fn bench_bitfield_construction() {
             });
         });
     });
-    
+
     // Baseline comparison
     compare("Simple bitfield construction (baseline)", &|| (), |_| {
         repeat(|| {
@@ -435,96 +448,107 @@ fn bench_bitfield_construction() {
 
 fn bench_bitfield_accessors() {
     println!("\n=== Bitfield Accessors ===");
-    
-    compare("Variable bitfield getter", 
-        &|| VariableMessage::new().with_data(VariableData::Large(0x12345678)), 
+
+    compare(
+        "Variable bitfield getter",
+        &|| VariableMessage::new().with_data(VariableData::Large(0x12345678)),
         |input| {
             repeat(|| {
                 black_box(black_box(&input).data());
             });
-        }
+        },
     );
-    
-    compare("Handwritten struct getter", 
+
+    compare(
+        "Handwritten struct getter",
         &|| HandwrittenMessage {
             msg_type: 3,
             data: HandwrittenData::Large(0x12345678),
-        }, 
+        },
         |input| {
             repeat(|| {
                 black_box(black_box(&input).data());
             });
-        }
+        },
     );
 }
 
 fn bench_bitfield_setters() {
     println!("\n=== Bitfield Setters ===");
-    
-    compare("Variable bitfield setter", 
-        &|| VariableMessage::new(), 
+
+    compare(
+        "Variable bitfield setter",
+        &|| VariableMessage::new(),
         |mut input| {
             repeat(|| {
                 black_box(&mut input).set_data(VariableData::Small(99));
             });
-        }
+        },
     );
-    
-    compare("Handwritten struct setter", 
-        &|| HandwrittenMessage::new(), 
+
+    compare(
+        "Handwritten struct setter",
+        &|| HandwrittenMessage::new(),
         |mut input| {
             repeat(|| {
                 black_box(&mut input).set_data(HandwrittenData::Small(99));
             });
-        }
+        },
     );
 }
 
 fn bench_bitfield_serialization() {
     println!("\n=== Bitfield Serialization/Deserialization ===");
-    
-    compare("Variable bitfield into_bytes", 
-        &|| VariableMessage::new().with_data(VariableData::Large(0x12345678)), 
+
+    compare(
+        "Variable bitfield into_bytes",
+        &|| VariableMessage::new().with_data(VariableData::Large(0x12345678)),
         |input| {
             repeat(|| {
                 black_box(black_box(&input).into_bytes());
             });
-        }
+        },
     );
-    
-    compare("Handwritten struct into_bytes", 
+
+    compare(
+        "Handwritten struct into_bytes",
         &|| HandwrittenMessage {
             msg_type: 3,
             data: HandwrittenData::Large(0x12345678),
-        }, 
+        },
         |input| {
             repeat(|| {
                 black_box(black_box(&input).into_bytes());
             });
-        }
+        },
     );
-    
-    let variable_bytes = VariableMessage::new().with_data(VariableData::Large(0x12345678)).into_bytes();
-    compare("Variable bitfield from_bytes", 
-        &|| variable_bytes, 
+
+    let variable_bytes = VariableMessage::new()
+        .with_data(VariableData::Large(0x12345678))
+        .into_bytes();
+    compare(
+        "Variable bitfield from_bytes",
+        &|| variable_bytes,
         |input| {
             repeat(|| {
                 black_box(VariableMessage::from_bytes(*black_box(&input)));
             });
-        }
+        },
     );
-    
+
     let handwritten_bytes = HandwrittenMessage {
         msg_type: 3,
         data: HandwrittenData::Large(0x12345678),
-    }.into_bytes();
-    compare("Handwritten struct from_bytes", 
-        &|| handwritten_bytes, 
+    }
+    .into_bytes();
+    compare(
+        "Handwritten struct from_bytes",
+        &|| handwritten_bytes,
         |input| {
             repeat(|| {
                 black_box(HandwrittenMessage::from_bytes(*black_box(&input)));
             });
-        }
+        },
     );
 }
 
@@ -532,7 +556,7 @@ fn bench_bitfield_serialization() {
 
 fn bench_custom_types() {
     println!("\n=== Custom Type Names ===");
-    
+
     compare("Custom types construction", &|| (), |_| {
         repeat(|| {
             black_box(VariableDataCustomTypes::ByteValue(42));
@@ -540,24 +564,28 @@ fn bench_custom_types() {
             black_box(VariableDataCustomTypes::DwordValue(0x12345678));
         });
     });
-    
-    compare("Custom types into_bytes", 
-        &|| VariableDataCustomTypes::DwordValue(0x12345678), 
+
+    compare(
+        "Custom types into_bytes",
+        &|| VariableDataCustomTypes::DwordValue(0x12345678),
         |input| {
             repeat(|| {
-                black_box(<VariableDataCustomTypes as Specifier>::into_bytes(*black_box(&input)).unwrap());
+                black_box(
+                    <VariableDataCustomTypes as Specifier>::into_bytes(*black_box(&input)).unwrap(),
+                );
             });
-        }
+        },
     );
-    
-    compare("Custom types bitfield roundtrip", 
-        &|| CustomTypesMessage::new().with_data(VariableDataCustomTypes::DwordValue(0x12345678)), 
+
+    compare(
+        "Custom types bitfield roundtrip",
+        &|| CustomTypesMessage::new().with_data(VariableDataCustomTypes::DwordValue(0x12345678)),
         |input| {
             repeat(|| {
                 let bytes = black_box(&input).into_bytes();
                 black_box(CustomTypesMessage::from_bytes(bytes));
             });
-        }
+        },
     );
 }
 
@@ -565,13 +593,13 @@ fn bench_custom_types() {
 
 fn bench_baseline_comparisons() {
     println!("\n=== Baseline Comparisons ===");
-    
+
     compare("Simple enum construction", &|| (), |_| {
         repeat(|| {
             black_box(SimpleEnum::A);
         });
     });
-    
+
     compare("Simple enum into_bytes", &|| SimpleEnum::A, |input| {
         repeat(|| {
             black_box(<SimpleEnum as Specifier>::into_bytes(*black_box(&input)).unwrap());
@@ -584,24 +612,38 @@ fn bench_baseline_comparisons() {
 fn validate_correctness() {
     println!("\n🔍 Correctness Validation");
     println!("========================");
-    
+
     // Validate large enum sizes
     println!("\n--- Large Enums (32/64/128 bits) ---");
     let test_cases_large = [
-        (GeneratedVariableEnum::Small(42), HandwrittenVariableEnum::Small(42)),
-        (GeneratedVariableEnum::Medium(1234), HandwrittenVariableEnum::Medium(1234)),
-        (GeneratedVariableEnum::Large(5678), HandwrittenVariableEnum::Large(5678)),
+        (
+            GeneratedVariableEnum::Small(42),
+            HandwrittenVariableEnum::Small(42),
+        ),
+        (
+            GeneratedVariableEnum::Medium(1234),
+            HandwrittenVariableEnum::Medium(1234),
+        ),
+        (
+            GeneratedVariableEnum::Large(5678),
+            HandwrittenVariableEnum::Large(5678),
+        ),
     ];
-    
+
     for (gen, hw) in test_cases_large {
         let gen_bytes = <GeneratedVariableEnum as Specifier>::into_bytes(gen).unwrap();
         let hw_bytes = hw.into_bytes().unwrap();
         assert_eq!(gen_bytes, hw_bytes, "Serialization mismatch for {:?}", gen);
-        assert_eq!(gen.discriminant(), hw.discriminant() as usize, "Discriminant mismatch for {:?}", gen);
+        assert_eq!(
+            gen.discriminant(),
+            hw.discriminant() as usize,
+            "Discriminant mismatch for {:?}",
+            gen
+        );
         assert_eq!(gen.size(), hw.size(), "Size mismatch for {:?}", gen);
         println!("  {:?} ✓", gen);
     }
-    
+
     // Validate small enum sizes
     println!("\n--- Small Enums (8/16/32 bits) ---");
     let test_data = [
@@ -609,15 +651,18 @@ fn validate_correctness() {
         VariableData::Medium(1234),
         VariableData::Large(0x12345678),
     ];
-    
+
     for &data in &test_data {
         let bytes = <VariableData as Specifier>::into_bytes(data).unwrap();
         let discriminant = data.discriminant();
         let reconstructed = VariableData::from_discriminant_and_bytes(discriminant, bytes).unwrap();
         assert_eq!(data, reconstructed);
-        println!("  {:?} -> bytes: {}, disc: {} -> {:?} ✓", data, bytes, discriminant, reconstructed);
+        println!(
+            "  {:?} -> bytes: {}, disc: {} -> {:?} ✓",
+            data, bytes, discriminant, reconstructed
+        );
     }
-    
+
     // Validate custom types
     println!("\n--- Custom Type Names ---");
     let custom_data = [
@@ -625,27 +670,32 @@ fn validate_correctness() {
         VariableDataCustomTypes::WordValue(1234),
         VariableDataCustomTypes::DwordValue(0x12345678),
     ];
-    
+
     for &data in &custom_data {
         let bytes = <VariableDataCustomTypes as Specifier>::into_bytes(data).unwrap();
         let discriminant = data.discriminant();
-        let reconstructed = VariableDataCustomTypes::from_discriminant_and_bytes(discriminant, bytes).unwrap();
+        let reconstructed =
+            VariableDataCustomTypes::from_discriminant_and_bytes(discriminant, bytes).unwrap();
         assert_eq!(data, reconstructed);
         println!("  {:?} ✓", data);
     }
-    
+
     // Validate handwritten vs generated behavior
     println!("\n--- Behavior Validation ---");
     let var_data = VariableData::Medium(1234);
     let hw_data = HandwrittenData::Medium(1234);
-    
-    assert_eq!(var_data.discriminant(), hw_data.discriminant() as usize, "Discriminant mismatch");
+
+    assert_eq!(
+        var_data.discriminant(),
+        hw_data.discriminant() as usize,
+        "Discriminant mismatch"
+    );
     assert_eq!(var_data.size(), hw_data.size(), "Size mismatch");
-    
+
     let var_bytes = <VariableData as Specifier>::into_bytes(var_data).unwrap();
     let hw_bytes = hw_data.into_bytes();
     assert_eq!(var_bytes, hw_bytes, "Serialization mismatch");
-    
+
     println!("✅ All validations passed!");
 }
 
@@ -654,22 +704,43 @@ fn validate_correctness() {
 fn static_analysis() {
     println!("\n📊 Static Analysis");
     println!("==================");
-    
+
     println!("\n--- Bits Constants ---");
-    println!("GeneratedVariableEnum::BITS: {}", <GeneratedVariableEnum as Specifier>::BITS);
+    println!(
+        "GeneratedVariableEnum::BITS: {}",
+        <GeneratedVariableEnum as Specifier>::BITS
+    );
     println!("VariableData::BITS: {}", <VariableData as Specifier>::BITS);
-    println!("VariableDataCustomTypes::BITS: {}", <VariableDataCustomTypes as Specifier>::BITS);
+    println!(
+        "VariableDataCustomTypes::BITS: {}",
+        <VariableDataCustomTypes as Specifier>::BITS
+    );
     println!("SimpleEnum::BITS: {}", <SimpleEnum as Specifier>::BITS);
-    
+
     println!("\n--- Memory Layout ---");
-    println!("GeneratedVariableEnum: {} bytes", std::mem::size_of::<GeneratedVariableEnum>());
-    println!("HandwrittenVariableEnum: {} bytes", std::mem::size_of::<HandwrittenVariableEnum>());
-    println!("VariableData: {} bytes", std::mem::size_of::<VariableData>());
-    println!("HandwrittenData: {} bytes", std::mem::size_of::<HandwrittenData>());
+    println!(
+        "GeneratedVariableEnum: {} bytes",
+        std::mem::size_of::<GeneratedVariableEnum>()
+    );
+    println!(
+        "HandwrittenVariableEnum: {} bytes",
+        std::mem::size_of::<HandwrittenVariableEnum>()
+    );
+    println!(
+        "VariableData: {} bytes",
+        std::mem::size_of::<VariableData>()
+    );
+    println!(
+        "HandwrittenData: {} bytes",
+        std::mem::size_of::<HandwrittenData>()
+    );
     println!("SimpleEnum: {} bytes", std::mem::size_of::<SimpleEnum>());
-    
+
     println!("\n--- Supported Sizes ---");
-    println!("GeneratedVariableEnum: {:?}", GeneratedVariableEnum::supported_sizes());
+    println!(
+        "GeneratedVariableEnum: {:?}",
+        GeneratedVariableEnum::supported_sizes()
+    );
     println!("VariableData: {:?}", VariableData::supported_sizes());
 }
 
@@ -682,33 +753,33 @@ fn main() {
 
     // First validate correctness
     validate_correctness();
-    
+
     println!("\n📊 Running performance benchmarks...\n");
-    
+
     // Core enum benchmarks (large sizes)
     bench_core_enum_construction();
     bench_core_enum_into_bytes();
     bench_core_enum_helpers();
     bench_core_enum_deserialization();
     bench_core_static_methods();
-    
+
     // Practical enum benchmarks (small sizes)
     bench_practical_enum_construction();
     bench_practical_enum_serialization();
-    
+
     // Bitfield integration
     bench_bitfield_construction();
     bench_bitfield_accessors();
     bench_bitfield_setters();
     bench_bitfield_serialization();
-    
+
     // Additional tests
     bench_custom_types();
     bench_baseline_comparisons();
-    
+
     // Analysis
     static_analysis();
-    
+
     println!("\n🎯 Benchmark complete!");
     println!("Generated code should perform identically to handwritten code.");
     println!("Results are saved to disk for comparison across runs.");

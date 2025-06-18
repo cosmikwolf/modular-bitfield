@@ -1,8 +1,7 @@
 use super::{
     config::{Config, ReprKind},
     field_config::{FieldConfig, SkipWhich},
-    raise_skip_error,
-    BitfieldStruct,
+    raise_skip_error, BitfieldStruct,
 };
 use core::convert::TryFrom;
 use quote::quote;
@@ -158,7 +157,7 @@ impl BitfieldStruct {
             let span = field.span();
             let field_config = Self::extract_field_config(field)?;
             config.field_config(index, span, field_config)?;
-            
+
             // Extract variable-specific attributes separately
             Self::extract_variable_field_config(field, index, config)?;
         }
@@ -228,7 +227,9 @@ impl BitfieldStruct {
                         ))
                     }
                 }
-            } else if attr.path().is_ident("variant_discriminator") || attr.path().is_ident("variant_data") {
+            } else if attr.path().is_ident("variant_discriminator")
+                || attr.path().is_ident("variant_data")
+            {
                 // Skip - handled separately in extract_variable_field_config
             } else {
                 config.retain_attr(attr.clone());
@@ -238,7 +239,11 @@ impl BitfieldStruct {
     }
 
     /// Extracts the variable-specific attributes for a given field.
-    fn extract_variable_field_config(field: &syn::Field, index: usize, config: &mut Config) -> Result<()> {
+    fn extract_variable_field_config(
+        field: &syn::Field,
+        index: usize,
+        config: &mut Config,
+    ) -> Result<()> {
         for attr in &field.attrs {
             if attr.path().is_ident("variant_discriminator") {
                 match &attr.meta {

@@ -1,7 +1,4 @@
-use super::{
-    field_config::FieldConfig,
-    variable::field_config_ext::VariableFieldConfigs,
-};
+use super::{field_config::FieldConfig, variable::field_config_ext::VariableFieldConfigs};
 use crate::errors::CombineError;
 use core::any::TypeId;
 use proc_macro2::Span;
