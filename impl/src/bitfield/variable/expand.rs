@@ -480,8 +480,8 @@ mod tests {
     fn test_generate_size_specific_constructors() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0,
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: vec![32, 64, 128],
             fixed_bits: 16,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -503,8 +503,8 @@ mod tests {
     fn test_generate_variable_serialization() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0,
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: vec![16, 24, 32],
             fixed_bits: 8,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -531,8 +531,8 @@ mod tests {
     fn test_generate_variable_validations() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0,
-            _data_field_index: 1,
-            _fixed_field_indices: vec![2],
+            data_field_index: 1,
+            fixed_field_indices: vec![2],
             sizes: vec![32, 64, 96],
             fixed_bits: 12,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -596,8 +596,8 @@ mod tests {
     fn test_generate_variable_specifier_impl() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0,
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: vec![16, 32, 64],
             fixed_bits: 8,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -622,7 +622,7 @@ mod tests {
         assert!(generated.contains("64")); // Max size
         assert!(generated.contains("type Bytes"));
         assert!(generated.contains("[u8")); // Array type
-        assert!(generated.contains("8")); // 64 bits = 8 bytes
+        assert!(generated.contains('8')); // 64 bits = 8 bytes
         assert!(generated.contains("into_bytes"));
         assert!(generated.contains("from_bytes"));
     }
@@ -631,8 +631,8 @@ mod tests {
     fn test_generate_wire_format_helpers() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0,
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: vec![16, 32],
             fixed_bits: 8,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -664,8 +664,8 @@ mod tests {
     fn test_generate_variable_helper_methods() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 1, // Use field index 1 (named field)
-            _data_field_index: 2,
-            _fixed_field_indices: vec![0],
+            data_field_index: 2,
+            fixed_field_indices: vec![0],
             sizes: vec![24, 48, 96],
             fixed_bits: 16,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -721,8 +721,8 @@ mod tests {
     fn test_wire_format_helpers_with_unnamed_field() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0, // Unnamed field
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: vec![16],
             fixed_bits: 8,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -748,8 +748,8 @@ mod tests {
     fn test_wire_format_helpers_invalid_index() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 10, // Invalid index
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: vec![16],
             fixed_bits: 8,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -776,8 +776,8 @@ mod tests {
     fn test_generate_variable_helper_methods_invalid_index() {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 10, // Invalid index
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: vec![16],
             fixed_bits: 8,
             data_enum_type: syn::parse_quote! { DataEnum },

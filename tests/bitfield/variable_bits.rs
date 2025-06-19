@@ -1,4 +1,4 @@
-//! Basic variable_bits functionality tests
+//! Basic `variable_bits` functionality tests
 
 use modular_bitfield::prelude::*;
 
@@ -27,7 +27,7 @@ fn basic_variable_enum() {
     assert_eq!(medium.discriminant(), 1);
     assert_eq!(medium.size(), 16);
 
-    let large = SimpleData::Large(0x12345678);
+    let large = SimpleData::Large(0x1234_5678);
     assert_eq!(large.discriminant(), 2);
     assert_eq!(large.size(), 32);
 
@@ -136,7 +136,7 @@ fn variable_enum_odd_sizes() {
     assert_eq!(medium.discriminant(), 1);
     assert_eq!(medium.size(), 13);
 
-    let large = OddSizedData::Large(131071); // Max value for 17 bits (2^17 - 1)
+    let large = OddSizedData::Large(131_071); // Max value for 17 bits (2^17 - 1)
     assert_eq!(large.discriminant(), 2);
     assert_eq!(large.size(), 17);
 

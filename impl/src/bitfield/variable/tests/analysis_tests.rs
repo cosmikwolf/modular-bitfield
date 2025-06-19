@@ -275,7 +275,8 @@ fn test_analyze_variable_bits_valid_configuration() {
 
     let analysis = result.unwrap();
     assert_eq!(analysis.discriminator_field_index, 0);
-    assert_eq!(analysis._data_field_index, 1);
+    let data_field_index = analysis.data_field_index;
+    assert_eq!(data_field_index, 1);
     assert_eq!(analysis.sizes, vec![32, 64, 128]);
     assert_eq!(analysis.fixed_bits, 16); // 4 + 8 + 4
     assert_eq!(analysis.discriminator_bits, 4);
@@ -301,8 +302,10 @@ fn test_analyze_variable_bits_with_bits_attribute() {
         .unwrap();
 
     // Set bits attribute on discriminator field
-    let mut field_config = FieldConfig::default();
-    field_config.bits = Some(ConfigValue::new(6, Span::call_site()));
+    let field_config = FieldConfig {
+        bits: Some(ConfigValue::new(6, Span::call_site())),
+        ..Default::default()
+    };
     config
         .field_configs
         .insert(0, ConfigValue::new(field_config, Span::call_site()));

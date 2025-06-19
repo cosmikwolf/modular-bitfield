@@ -1,5 +1,3 @@
-//! Test for BITS_UNIFICATION_PLAN.md implementation
-//!
 //! This test demonstrates the unified bits syntax and variable struct support
 //! as described in the plan document.
 
@@ -27,7 +25,7 @@ fn test_unified_bits_enum_syntax() {
     assert_eq!(medium.discriminant(), 1);
     assert_eq!(medium.size(), 16);
 
-    let large = PositionalEnum::Large(0x12345678);
+    let large = PositionalEnum::Large(0x1234_5678);
     assert_eq!(large.discriminant(), 2);
     assert_eq!(large.size(), 32);
 }
@@ -92,7 +90,7 @@ fn test_explicit_bits_on_variants() {
     let medium = ExplicitEnum::Medium(1234);
     assert_eq!(medium.discriminant(), 1);
 
-    let large = ExplicitEnum::Large(0x12345678);
+    let large = ExplicitEnum::Large(0x1234_5678);
     assert_eq!(large.discriminant(), 2);
 }
 

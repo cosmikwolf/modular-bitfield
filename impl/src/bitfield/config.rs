@@ -38,8 +38,8 @@ impl BitsConfig {
 impl core::fmt::Debug for BitsConfig {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            Self::Fixed(size) => write!(f, "{}", size),
-            Self::Variable(sizes) => write!(f, "{:?}", sizes),
+            Self::Fixed(size) => write!(f, "{size}"),
+            Self::Variable(sizes) => write!(f, "{sizes:?}"),
         }
     }
 }
@@ -340,6 +340,6 @@ impl Config {
     /// Returns true if this struct uses variable bits
     #[allow(dead_code)]
     pub fn is_variable_bits(&self) -> bool {
-        self.bits.as_ref().map_or(false, |b| b.value.is_variable())
+        self.bits.as_ref().is_some_and(|b| b.value.is_variable())
     }
 }

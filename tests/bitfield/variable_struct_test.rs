@@ -1,4 +1,4 @@
-//! Test variable-size bitfield structs with variant_discriminator and variant_data
+//! Test variable-size bitfield structs with `variant_discriminator` and `variant_data`
 
 use modular_bitfield::prelude::*;
 

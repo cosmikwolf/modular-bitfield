@@ -1,0 +1,3 @@
+ --use-new-action-cache
+ --container-architecture linux/arm64
+ --rm

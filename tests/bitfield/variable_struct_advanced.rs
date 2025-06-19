@@ -95,7 +95,7 @@ fn test_variable_struct_with_nested_enums() {
     let mut packet2 = NestedPacket::new_32bit();
     packet2.set_variant(1);
     packet2.set_header(99);
-    packet2.set_data(OuterData::Double(0xABCDEF));
+    packet2.set_data(OuterData::Double(0x00AB_CDEF));
 
     assert_eq!(packet2.variant(), 1);
     assert_eq!(packet2.header(), 99);
@@ -127,14 +127,14 @@ fn test_variable_struct_boundary_conditions() {
     // Test small variant
     let mut small = ExtremePacket::new_16bit();
     small.set_variant(0);
-    small.set_reserved(0b1111111);
+    small.set_reserved(0b111_1111);
     small.set_data(ExtremeData::Small(255));
 
     let small_bytes = small.into_bytes_16();
     assert_eq!(small_bytes.len(), 2);
     let recovered_small = ExtremePacket::from_bytes_16(small_bytes).unwrap();
     assert_eq!(recovered_small.variant(), 0);
-    assert_eq!(recovered_small.reserved(), 0b1111111);
+    assert_eq!(recovered_small.reserved(), 0b111_1111);
 
     // Test large variant - just verify basic structure
     let mut large = ExtremePacket::new_128bit();
@@ -175,8 +175,8 @@ fn test_variable_struct_discriminator_exhaustion() {
     let test_cases = [
         (0, FourWayData::VarA(0xAB), 16), // 8-bit data + 8 bits overhead = 16
         (1, FourWayData::VarB(0xABCD), 24), // 16-bit data + 8 bits overhead = 24
-        (2, FourWayData::VarC(0xABCDEF), 32), // 24-bit data + 8 bits overhead = 32
-        (3, FourWayData::VarD(0xABCDEF), 40), // 32-bit data + 8 bits overhead = 40
+        (2, FourWayData::VarC(0x00AB_CDEF), 32), // 24-bit data + 8 bits overhead = 32
+        (3, FourWayData::VarD(0x00AB_CDEF), 40), // 32-bit data + 8 bits overhead = 40
     ];
 
     for (disc, data, total_bits) in test_cases {
@@ -190,7 +190,7 @@ fn test_variable_struct_discriminator_exhaustion() {
         };
 
         packet.set_variant(disc);
-        packet.set_flags((disc * 10) as u8);
+        packet.set_flags(disc * 10);
         packet.set_data(data);
 
         // The variable struct implementation might not properly handle
@@ -232,7 +232,7 @@ fn test_variable_struct_non_byte_aligned() {
     let mut packet1 = OddPacket::new_12bit();
     packet1.set_variant(0);
     packet1.set_odd_field(0b101);
-    packet1.set_data(OddData::Seven(0b1111111));
+    packet1.set_data(OddData::Seven(0b111_1111));
 
     let bytes1 = packet1.into_bytes_12();
     assert_eq!(bytes1.len(), 2); // 12 bits = 2 bytes

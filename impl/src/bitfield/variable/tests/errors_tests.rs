@@ -148,12 +148,10 @@ fn test_discriminant_range_edge_cases() {
         let syn_error = error.to_syn_error();
         let error_msg = syn_error.to_string();
 
-        assert!(error_msg.contains(&format!("discriminant value {}", max_allowed + 1)));
-        assert!(error_msg.contains(&format!("exceeds maximum {}", max_allowed)));
-        assert!(error_msg.contains(&format!(
-            "for {}-bit discriminator field",
-            discriminator_bits
-        )));
+        let discriminant_value = max_allowed + 1;
+        assert!(error_msg.contains(&format!("discriminant value {discriminant_value}")));
+        assert!(error_msg.contains(&format!("exceeds maximum {max_allowed}")));
+        assert!(error_msg.contains(&format!("for {discriminator_bits}-bit discriminator field")));
     }
 }
 
@@ -195,9 +193,7 @@ fn test_error_message_formatting() {
         for fragment in expected_fragments {
             assert!(
                 error_msg.contains(fragment),
-                "Error message '{}' should contain '{}'",
-                error_msg,
-                fragment
+                "Error message '{error_msg}' should contain '{fragment}'"
             );
         }
     }

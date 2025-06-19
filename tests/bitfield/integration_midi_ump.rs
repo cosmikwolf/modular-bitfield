@@ -1,6 +1,6 @@
 //! MIDI UMP (Universal MIDI Packet) integration test
 //!
-//! This demonstrates real-world usage of variable_bits functionality for implementing
+//! This demonstrates real-world usage of `variable_bits` functionality for implementing
 //! the MIDI 2.0 Universal MIDI Packet format, which has variable message sizes:
 //! - 32-bit: Type 0 (Utility), Type 1 (System Real Time), Type 2 (MIDI 1.0 Channel Voice)
 //! - 64-bit: Type 3 (Data messages including System Exclusive)
@@ -129,22 +129,22 @@ impl UmpMessage {
     fn song_position(group: u8, position: u16) -> Self {
         let lsb = (position & 0x7F) as u8;
         let msb = ((position >> 7) & 0x7F) as u8;
-        let msg = SystemMessage::new()
+        let system_msg = SystemMessage::new()
             .with_message_type(1)
             .with_group(group)
             .with_status(0xF2)
             .with_data1(lsb)
             .with_data2(msb);
 
-        UmpMessage::System32(u32::from_le_bytes(msg.into_bytes()))
+        UmpMessage::System32(u32::from_le_bytes(system_msg.into_bytes()))
     }
 
     /// Create a System Exclusive in 1 UMP message (Type 0x3)
     fn sysex_in_1_ump(group: u8, sysex_data: &[u8]) -> Self {
-        let num_bytes = sysex_data.len().min(5) as u8;
+        let num_bytes = u8::try_from(sysex_data.len().min(5)).unwrap();
         let mut data_u64 = 0u64;
         for (i, &byte) in sysex_data.iter().take(5).enumerate() {
-            data_u64 |= (byte as u64) << (i * 8);
+            data_u64 |= u64::from(byte) << (i * 8);
         }
 
         let msg = SysExMessage::new()
@@ -159,10 +159,10 @@ impl UmpMessage {
 
     /// Create a System Exclusive Start message (Type 0x3)
     fn sysex_start(group: u8, sysex_data: &[u8]) -> Self {
-        let num_bytes = sysex_data.len().min(5) as u8;
+        let num_bytes = u8::try_from(sysex_data.len().min(5)).unwrap();
         let mut data_u64 = 0u64;
         for (i, &byte) in sysex_data.iter().take(5).enumerate() {
-            data_u64 |= (byte as u64) << (i * 8);
+            data_u64 |= u64::from(byte) << (i * 8);
         }
 
         let msg = SysExMessage::new()
@@ -177,10 +177,10 @@ impl UmpMessage {
 
     /// Create a System Exclusive 8 in 1 UMP message (Type 0x5)
     fn sysex8_in_1_ump(group: u8, stream_id: u8, sysex_data: &[u8]) -> Self {
-        let num_bytes = sysex_data.len().min(12) as u8;
+        let num_bytes = u8::try_from(sysex_data.len().min(12)).unwrap();
         let mut data_u128 = 0u128;
         for (i, &byte) in sysex_data.iter().take(12).enumerate() {
-            data_u128 |= (byte as u128) << (i * 8);
+            data_u128 |= u128::from(byte) << (i * 8);
         }
 
         let msg = SysEx8Message::new()
@@ -196,10 +196,10 @@ impl UmpMessage {
 
     /// Create a System Exclusive 8 Start message (Type 0x5)
     fn sysex8_start(group: u8, stream_id: u8, sysex_data: &[u8]) -> Self {
-        let num_bytes = sysex_data.len().min(12) as u8;
+        let num_bytes = u8::try_from(sysex_data.len().min(12)).unwrap();
         let mut data_u128 = 0u128;
         for (i, &byte) in sysex_data.iter().take(12).enumerate() {
-            data_u128 |= (byte as u128) << (i * 8);
+            data_u128 |= u128::from(byte) << (i * 8);
         }
 
         let msg = SysEx8Message::new()
@@ -216,8 +216,7 @@ impl UmpMessage {
     /// Get the message type from a UMP message
     fn message_type(&self) -> u8 {
         match self {
-            UmpMessage::Utility32(data) => (data & 0xF) as u8,
-            UmpMessage::System32(data) => (data & 0xF) as u8,
+            UmpMessage::Utility32(data) | UmpMessage::System32(data) => (data & 0xF) as u8,
             UmpMessage::SysEx64(data) => (data & 0xF) as u8,
             UmpMessage::SysEx8_128(data) => (data & 0xF) as u8,
         }
@@ -553,13 +552,13 @@ fn test_ump_bitfield_structure() {
         .with_group(2)
         .with_status(0x01)
         .with_num_bytes(5)
-        .with_sysex_data(0x1234567890);
+        .with_sysex_data(0x0012_3456_7890);
 
     assert_eq!(sysex.message_type(), 3);
     assert_eq!(sysex.group(), 2);
     assert_eq!(sysex.status(), 0x01);
     assert_eq!(sysex.num_bytes(), 5);
-    assert_eq!(sysex.sysex_data(), 0x1234567890);
+    assert_eq!(sysex.sysex_data(), 0x0012_3456_7890);
 }
 
 // =============================================================================

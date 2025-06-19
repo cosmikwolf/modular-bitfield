@@ -240,9 +240,8 @@ mod tests {
     #[test]
     fn test_feed_int_param_valid() {
         let meta: syn::Meta = syn::parse_quote! { bytes = 4 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let mut called = false;
@@ -259,9 +258,8 @@ mod tests {
     #[test]
     fn test_feed_int_param_invalid_value() {
         let meta: syn::Meta = syn::parse_quote! { bytes = "string" };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = Config::feed_int_param(&name_value, "bytes", |_value, _span| Ok(()));
@@ -274,9 +272,8 @@ mod tests {
     fn test_feed_int_param_malformed_integer() {
         // Create a meta with an integer that's too large
         let meta: syn::Meta = syn::parse_quote! { bytes = 99999999999999999999999999999999 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = Config::feed_int_param(&name_value, "bytes", |_value, _span| Ok(()));
@@ -289,9 +286,8 @@ mod tests {
     fn test_feed_bytes_param() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { bytes = 8 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bytes_param(&name_value);
@@ -304,9 +300,8 @@ mod tests {
     fn test_feed_bits_param_single_value() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { bits = 32 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -322,9 +317,8 @@ mod tests {
     fn test_feed_bits_param_tuple() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { bits = (32, 64, 128) };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -334,7 +328,7 @@ mod tests {
             super::super::config::BitsConfig::Variable(sizes) => {
                 assert_eq!(sizes, &vec![32, 64, 128]);
             }
-            _ => panic!("Expected Variable bits config"),
+            super::super::config::BitsConfig::Fixed(_) => panic!("Expected Variable bits config"),
         }
     }
 
@@ -342,9 +336,8 @@ mod tests {
     fn test_feed_bits_param_empty_tuple() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { bits = () };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -359,9 +352,8 @@ mod tests {
     fn test_feed_bits_param_decreasing_order() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { bits = (64, 32, 128) };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -376,9 +368,8 @@ mod tests {
     fn test_feed_bits_param_invalid_tuple_element() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { bits = (32, "invalid", 128) };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -395,9 +386,8 @@ mod tests {
         // Create a tuple with an integer that's too large
         let meta: syn::Meta =
             syn::parse_quote! { bits = (32, 99999999999999999999999999999999, 128) };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -412,9 +402,8 @@ mod tests {
     fn test_feed_bits_param_invalid_type() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { bits = true };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -429,39 +418,36 @@ mod tests {
     fn test_feed_filled_param_true() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { filled = true };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_filled_param(&name_value);
         assert!(result.is_ok());
         assert!(config.filled.is_some());
-        assert_eq!(config.filled.unwrap().value, true);
+        assert!(config.filled.unwrap().value);
     }
 
     #[test]
     fn test_feed_filled_param_false() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { filled = false };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_filled_param(&name_value);
         assert!(result.is_ok());
         assert!(config.filled.is_some());
-        assert_eq!(config.filled.unwrap().value, false);
+        assert!(!config.filled.unwrap().value);
     }
 
     #[test]
     fn test_feed_filled_param_invalid() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { filled = 123 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_filled_param(&name_value);
@@ -558,9 +544,8 @@ mod tests {
     #[test]
     fn test_feed_int_param_callback_error() {
         let meta: syn::Meta = syn::parse_quote! { bytes = 4 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = Config::feed_int_param(&name_value, "bytes", |_value, span| {
@@ -575,9 +560,8 @@ mod tests {
     #[should_panic(expected = "assertion")]
     fn test_feed_int_param_wrong_name() {
         let meta: syn::Meta = syn::parse_quote! { other = 4 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         // This should panic because name doesn't match
@@ -589,9 +573,8 @@ mod tests {
     fn test_feed_bits_param_wrong_name() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { other = 32 };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         // This should panic because name doesn't match
@@ -603,9 +586,8 @@ mod tests {
     fn test_feed_filled_param_wrong_name() {
         let mut config = Config::default();
         let meta: syn::Meta = syn::parse_quote! { other = true };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         // This should panic because name doesn't match
@@ -617,9 +599,8 @@ mod tests {
         let mut config = Config::default();
         // Test with an integer that can't be parsed
         let meta: syn::Meta = syn::parse_quote! { bits = 18446744073709551616 }; // u64::MAX + 1
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -635,9 +616,8 @@ mod tests {
         let mut config = Config::default();
         // Equal values should be allowed (non-decreasing, not strictly increasing)
         let meta: syn::Meta = syn::parse_quote! { bits = (32, 32, 64, 64) };
-        let name_value = match meta {
-            syn::Meta::NameValue(nv) => nv,
-            _ => panic!("Expected NameValue"),
+        let syn::Meta::NameValue(name_value) = meta else {
+            panic!("Expected NameValue")
         };
 
         let result = config.feed_bits_param(&name_value);
@@ -646,7 +626,7 @@ mod tests {
             super::super::config::BitsConfig::Variable(sizes) => {
                 assert_eq!(sizes, &vec![32, 32, 64, 64]);
             }
-            _ => panic!("Expected Variable bits config"),
+            super::super::config::BitsConfig::Fixed(_) => panic!("Expected Variable bits config"),
         }
     }
 

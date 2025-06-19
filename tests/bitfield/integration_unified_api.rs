@@ -1,5 +1,4 @@
 //! Integration test demonstrating the ideal unified API
-//! as proposed in BITS_UNIFICATION_PLAN.md
 
 use modular_bitfield::prelude::*;
 
@@ -87,11 +86,11 @@ fn test_comprehensive_variable_enum() {
     assert_eq!(small.discriminant(), 1);
     assert_eq!(small.size(), 16);
 
-    let medium = ComprehensiveData::Medium(0xFFFFFFFF);
+    let medium = ComprehensiveData::Medium(0xFFFF_FFFF);
     assert_eq!(medium.discriminant(), 2);
     assert_eq!(medium.size(), 32);
 
-    let large = ComprehensiveData::Large(0xFFFFFFFF_FFFFFFFF);
+    let large = ComprehensiveData::Large(0xFFFF_FFFF_FFFF_FFFF);
     assert_eq!(large.discriminant(), 3);
     assert_eq!(large.size(), 64);
 

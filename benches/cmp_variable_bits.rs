@@ -143,11 +143,11 @@ impl HandwrittenData {
 #[bits(8, 16, 32)]
 enum VariableDataCustomTypes {
     #[discriminant = 0]
-    ByteValue(u8),
+    Byte(u8),
     #[discriminant = 1]
-    WordValue(u16),
+    Word(u16),
     #[discriminant = 2]
-    DwordValue(u32),
+    Dword(u32),
 }
 
 // Traditional unit enum for baseline comparison
@@ -373,7 +373,7 @@ fn bench_practical_enum_construction() {
         repeat(|| {
             black_box(VariableData::Small(42));
             black_box(VariableData::Medium(1234));
-            black_box(VariableData::Large(0x12345678));
+            black_box(VariableData::Large(0x1234_5678));
         });
     });
 
@@ -381,7 +381,7 @@ fn bench_practical_enum_construction() {
         repeat(|| {
             black_box(HandwrittenData::Small(42));
             black_box(HandwrittenData::Medium(1234));
-            black_box(HandwrittenData::Large(0x12345678));
+            black_box(HandwrittenData::Large(0x1234_5678));
         });
     });
 }
@@ -392,7 +392,7 @@ fn bench_practical_enum_serialization() {
     let var_data = [
         VariableData::Small(42),
         VariableData::Medium(1234),
-        VariableData::Large(0x12345678),
+        VariableData::Large(0x1234_5678),
     ];
 
     compare("Variable enum into_bytes", &|| var_data, |data| {
@@ -406,7 +406,7 @@ fn bench_practical_enum_serialization() {
     let hw_data = [
         HandwrittenData::Small(42),
         HandwrittenData::Medium(1234),
-        HandwrittenData::Large(0x12345678),
+        HandwrittenData::Large(0x1234_5678),
     ];
 
     compare("Handwritten enum into_bytes", &|| hw_data, |data| {
@@ -425,7 +425,7 @@ fn bench_bitfield_construction() {
 
     compare("Variable bitfield construction", &|| (), |_| {
         repeat(|| {
-            black_box(VariableMessage::new().with_data(VariableData::Large(0x12345678)));
+            black_box(VariableMessage::new().with_data(VariableData::Large(0x1234_5678)));
         });
     });
 
@@ -433,7 +433,7 @@ fn bench_bitfield_construction() {
         repeat(|| {
             black_box(HandwrittenMessage {
                 msg_type: 3,
-                data: HandwrittenData::Large(0x12345678),
+                data: HandwrittenData::Large(0x1234_5678),
             });
         });
     });
@@ -441,7 +441,7 @@ fn bench_bitfield_construction() {
     // Baseline comparison
     compare("Simple bitfield construction (baseline)", &|| (), |_| {
         repeat(|| {
-            black_box(SimpleMessage::new().with_payload(0x12345678));
+            black_box(SimpleMessage::new().with_payload(0x1234_5678));
         });
     });
 }
@@ -451,7 +451,7 @@ fn bench_bitfield_accessors() {
 
     compare(
         "Variable bitfield getter",
-        &|| VariableMessage::new().with_data(VariableData::Large(0x12345678)),
+        &|| VariableMessage::new().with_data(VariableData::Large(0x1234_5678)),
         |input| {
             repeat(|| {
                 black_box(black_box(&input).data());
@@ -463,7 +463,7 @@ fn bench_bitfield_accessors() {
         "Handwritten struct getter",
         &|| HandwrittenMessage {
             msg_type: 3,
-            data: HandwrittenData::Large(0x12345678),
+            data: HandwrittenData::Large(0x1234_5678),
         },
         |input| {
             repeat(|| {
@@ -502,7 +502,7 @@ fn bench_bitfield_serialization() {
 
     compare(
         "Variable bitfield into_bytes",
-        &|| VariableMessage::new().with_data(VariableData::Large(0x12345678)),
+        &|| VariableMessage::new().with_data(VariableData::Large(0x1234_5678)),
         |input| {
             repeat(|| {
                 black_box(black_box(&input).into_bytes());
@@ -514,7 +514,7 @@ fn bench_bitfield_serialization() {
         "Handwritten struct into_bytes",
         &|| HandwrittenMessage {
             msg_type: 3,
-            data: HandwrittenData::Large(0x12345678),
+            data: HandwrittenData::Large(0x1234_5678),
         },
         |input| {
             repeat(|| {
@@ -524,7 +524,7 @@ fn bench_bitfield_serialization() {
     );
 
     let variable_bytes = VariableMessage::new()
-        .with_data(VariableData::Large(0x12345678))
+        .with_data(VariableData::Large(0x1234_5678))
         .into_bytes();
     compare(
         "Variable bitfield from_bytes",
@@ -538,7 +538,7 @@ fn bench_bitfield_serialization() {
 
     let handwritten_bytes = HandwrittenMessage {
         msg_type: 3,
-        data: HandwrittenData::Large(0x12345678),
+        data: HandwrittenData::Large(0x1234_5678),
     }
     .into_bytes();
     compare(
@@ -559,15 +559,15 @@ fn bench_custom_types() {
 
     compare("Custom types construction", &|| (), |_| {
         repeat(|| {
-            black_box(VariableDataCustomTypes::ByteValue(42));
-            black_box(VariableDataCustomTypes::WordValue(1234));
-            black_box(VariableDataCustomTypes::DwordValue(0x12345678));
+            black_box(VariableDataCustomTypes::Byte(42));
+            black_box(VariableDataCustomTypes::Word(1234));
+            black_box(VariableDataCustomTypes::Dword(0x1234_5678));
         });
     });
 
     compare(
         "Custom types into_bytes",
-        &|| VariableDataCustomTypes::DwordValue(0x12345678),
+        &|| VariableDataCustomTypes::Dword(0x1234_5678),
         |input| {
             repeat(|| {
                 black_box(
@@ -579,7 +579,7 @@ fn bench_custom_types() {
 
     compare(
         "Custom types bitfield roundtrip",
-        &|| CustomTypesMessage::new().with_data(VariableDataCustomTypes::DwordValue(0x12345678)),
+        &|| CustomTypesMessage::new().with_data(VariableDataCustomTypes::Dword(0x1234_5678)),
         |input| {
             repeat(|| {
                 let bytes = black_box(&input).into_bytes();
@@ -649,7 +649,7 @@ fn validate_correctness() {
     let test_data = [
         VariableData::Small(42),
         VariableData::Medium(1234),
-        VariableData::Large(0x12345678),
+        VariableData::Large(0x1234_5678),
     ];
 
     for &data in &test_data {
@@ -666,9 +666,9 @@ fn validate_correctness() {
     // Validate custom types
     println!("\n--- Custom Type Names ---");
     let custom_data = [
-        VariableDataCustomTypes::ByteValue(42),
-        VariableDataCustomTypes::WordValue(1234),
-        VariableDataCustomTypes::DwordValue(0x12345678),
+        VariableDataCustomTypes::Byte(42),
+        VariableDataCustomTypes::Word(1234),
+        VariableDataCustomTypes::Dword(0x1234_5678),
     ];
 
     for &data in &custom_data {

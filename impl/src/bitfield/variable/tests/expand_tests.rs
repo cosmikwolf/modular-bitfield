@@ -80,8 +80,8 @@ fn test_generate_variable_specifier_impl() {
     // Create analysis with specific sizes
     let analysis = VariableStructAnalysis {
         discriminator_field_index: 0,
-        _data_field_index: 1,
-        _fixed_field_indices: vec![],
+        data_field_index: 1,
+        fixed_field_indices: vec![],
         sizes: vec![16, 32, 64],
         fixed_bits: 2,
         data_enum_type: syn::parse_quote! { DataEnum },
@@ -179,8 +179,10 @@ fn test_analyze_and_expand_integration() {
 
     let analysis = analysis.unwrap();
     assert_eq!(analysis.discriminator_field_index, 0);
-    assert_eq!(analysis._data_field_index, 1);
-    assert_eq!(analysis._fixed_field_indices, vec![2]);
+    let data_field_index = analysis.data_field_index;
+    assert_eq!(data_field_index, 1);
+    let fixed_field_indices = &analysis.fixed_field_indices;
+    assert_eq!(fixed_field_indices, &vec![2]);
     assert_eq!(analysis.sizes, vec![24, 32, 48]);
     assert_eq!(analysis.fixed_bits, 8); // 3 + 5
     assert_eq!(analysis.discriminator_bits, 3);
@@ -206,8 +208,8 @@ fn test_max_size_calculation() {
     for (sizes, expected_bits, expected_bytes) in test_cases {
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0,
-            _data_field_index: 1,
-            _fixed_field_indices: vec![],
+            data_field_index: 1,
+            fixed_field_indices: vec![],
             sizes: sizes.clone(),
             fixed_bits: 4,
             data_enum_type: syn::parse_quote! { DataEnum },
@@ -217,15 +219,10 @@ fn test_max_size_calculation() {
         let max_bits = analysis.sizes.iter().max().unwrap_or(&0);
         let max_bytes = (max_bits + 7) / 8;
 
-        assert_eq!(
-            *max_bits, expected_bits,
-            "Max bits mismatch for {:?}",
-            sizes
-        );
+        assert_eq!(*max_bits, expected_bits, "Max bits mismatch for {sizes:?}");
         assert_eq!(
             max_bytes, expected_bytes,
-            "Max bytes mismatch for {:?}",
-            sizes
+            "Max bytes mismatch for {sizes:?}"
         );
     }
 }

@@ -15,7 +15,16 @@ use syn::{self, parse::Result};
 /// Analyzes the given token stream for `#[bitfield]` properties and expands code if valid.
 pub fn analyse_and_expand(args: TokenStream2, input: TokenStream2) -> TokenStream2 {
     match analyse_and_expand_or_error(args, input) {
-        Ok(output) => output,
+        Ok(output) => {
+            // Wrap output to suppress false positive clippy warning about
+            // semicolon_if_nothing_returned on enum variants
+            quote::quote! {
+                #[allow(clippy::semicolon_if_nothing_returned)]
+                const _: () = {
+                    #output
+                };
+            }
+        },
         Err(err) => err.to_compile_error(),
     }
 }

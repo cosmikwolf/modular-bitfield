@@ -27,7 +27,7 @@ fn test_variable_enum_basic_functionality() {
     assert_eq!(medium.discriminant(), 1);
     assert_eq!(medium.size(), 16);
 
-    let large = TestData::Large(0x12345678);
+    let large = TestData::Large(0x1234_5678);
     assert_eq!(large.discriminant(), 2);
     assert_eq!(large.size(), 32);
 }
@@ -242,8 +242,8 @@ fn test_variable_enum_round_trip_all_variants() {
     let test_cases = [
         (RoundTripTest::A(255), 0usize),
         (RoundTripTest::B(65535), 1usize),
-        (RoundTripTest::C(16777215), 2usize), // 2^24 - 1, max for 24 bits
-        (RoundTripTest::D(0x12345678), 3usize),
+        (RoundTripTest::C(16_777_215), 2usize), // 2^24 - 1, max for 24 bits
+        (RoundTripTest::D(0x1234_5678), 3usize),
     ];
 
     for (original, expected_discriminant) in test_cases {

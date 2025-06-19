@@ -8,8 +8,8 @@ use syn::{self, spanned::Spanned as _};
 #[allow(dead_code)]
 pub struct VariableStructAnalysis {
     pub discriminator_field_index: usize, // Index of field marked with #[variant_discriminator]
-    pub _data_field_index: usize,         // Index of field marked with #[variant_data]
-    pub _fixed_field_indices: Vec<usize>, // Indices of all other fields
+    pub data_field_index: usize,          // Index of field marked with #[variant_data]
+    pub fixed_field_indices: Vec<usize>,  // Indices of all other fields
     pub sizes: Vec<usize>,                // Total struct sizes for each configuration
     pub fixed_bits: usize,                // Total bits used by non-variant fields
     pub data_enum_type: syn::Type,        // Type of the variant data field
@@ -21,8 +21,8 @@ impl core::fmt::Debug for VariableStructAnalysis {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("VariableStructAnalysis")
             .field("discriminator_field_index", &self.discriminator_field_index)
-            .field("_data_field_index", &self._data_field_index)
-            .field("_fixed_field_indices", &self._fixed_field_indices)
+            .field("data_field_index", &self.data_field_index)
+            .field("fixed_field_indices", &self.fixed_field_indices)
             .field("sizes", &self.sizes)
             .field("fixed_bits", &self.fixed_bits)
             .field("data_enum_type", &"<syn::Type>")
@@ -146,8 +146,8 @@ impl VariableBitsAnalysis for BitfieldStruct {
 
         Ok(Some(VariableStructAnalysis {
             discriminator_field_index,
-            _data_field_index: data_field_index,
-            _fixed_field_indices: fixed_fields.iter().map(|(index, _)| *index).collect(),
+            data_field_index,
+            fixed_field_indices: fixed_fields.iter().map(|(index, _)| *index).collect(),
             sizes: sizes.to_vec(),
             fixed_bits,
             data_enum_type,
@@ -274,7 +274,7 @@ mod tests {
                 _ => panic!("Unknown type"),
             };
             let result = extract_bits_from_type(&ty).unwrap();
-            assert_eq!(result, expected_bits, "Failed for type {}", type_name);
+            assert_eq!(result, expected_bits, "Failed for type {type_name}");
         }
     }
 
@@ -301,13 +301,12 @@ mod tests {
                 "B129" => syn::parse_quote! { B129 },
                 "B1000" => syn::parse_quote! { B1000 },
                 "Bits8" => syn::parse_quote! { Bits8 },
-                "8B" => continue,  // Can't parse this as valid Rust
-                "B8u" => continue, // Can't parse this as valid Rust
+                "8B" | "B8u" => continue, // Can't parse these as valid Rust
                 "Option<B8>" => syn::parse_quote! { Option<B8> },
                 _ => panic!("Unknown type"),
             };
             let result = extract_bits_from_type(&ty);
-            assert!(result.is_err(), "Expected error for type {}", type_name);
+            assert!(result.is_err(), "Expected error for type {type_name}");
         }
     }
 
@@ -383,8 +382,8 @@ mod tests {
         let analysis = result.unwrap().unwrap();
 
         assert_eq!(analysis.discriminator_field_index, 0);
-        assert_eq!(analysis._data_field_index, 1);
-        assert_eq!(analysis._fixed_field_indices, vec![2]);
+        assert_eq!(analysis.data_field_index, 1);
+        assert_eq!(analysis.fixed_field_indices, vec![2]);
         assert_eq!(analysis.sizes, vec![32, 64]);
         assert_eq!(analysis.discriminator_bits, 2);
         assert_eq!(analysis.fixed_bits, 8); // 2 bits discriminator + 6 bits fixed field
@@ -586,7 +585,7 @@ mod tests {
             .iter()
             .enumerate()
             .map(|(i, field)| crate::bitfield::field_info::FieldInfo {
-                field: *field,
+                field,
                 index: i + 1,
                 config: crate::bitfield::field_config::FieldConfig::default(),
             })
@@ -608,15 +607,15 @@ mod tests {
         // Test Debug implementation for VariableStructAnalysis
         let analysis = VariableStructAnalysis {
             discriminator_field_index: 0,
-            _data_field_index: 1,
-            _fixed_field_indices: vec![2, 3],
+            data_field_index: 1,
+            fixed_field_indices: vec![2, 3],
             sizes: vec![32, 64],
             fixed_bits: 8,
             data_enum_type: parse_quote! { DataEnum },
             discriminator_bits: 2,
         };
 
-        let debug_str = format!("{:?}", analysis);
+        let debug_str = format!("{analysis:?}");
         assert!(debug_str.contains("VariableStructAnalysis"));
         assert!(debug_str.contains("discriminator_field_index: 0"));
         assert!(debug_str.contains("sizes: [32, 64]"));
