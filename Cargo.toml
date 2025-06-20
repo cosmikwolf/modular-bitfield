@@ -1,5 +1,5 @@
 [workspace]
-members = ["impl"]
+members = [ ".claude/clippy-temp","impl"]
 default-members = ["", "impl"]
 resolver = "2"
 

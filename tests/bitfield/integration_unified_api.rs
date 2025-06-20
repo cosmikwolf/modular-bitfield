@@ -53,6 +53,7 @@ fn test_ideal_midi_ump_api() {
 #[test]
 fn test_comprehensive_variable_enum() {
     // Test all variable enum features
+    #[allow(clippy::semicolon_if_nothing_returned)]
     #[derive(Specifier, Debug, Clone, Copy, PartialEq)]
     #[bits(8, 16, 32, 64)]
     enum ComprehensiveData {
@@ -105,6 +106,7 @@ fn test_comprehensive_variable_enum() {
 #[test]
 fn test_variable_struct_validation() {
     // Test struct with multiple fields including fixed ones
+    #[allow(clippy::semicolon_if_nothing_returned)]
     #[derive(Specifier, Debug, Clone, Copy, PartialEq)]
     #[bits(24, 56)] // 8 + 24 = 32, 8 + 56 = 64
     enum PayloadData {
@@ -114,6 +116,7 @@ fn test_variable_struct_validation() {
         Long(u64), // 56 bits
     }
 
+    #[allow(clippy::semicolon_if_nothing_returned)]
     #[bitfield(bits = (32, 64))]
     #[derive(Debug, Clone, Copy)]
     struct VariablePacket {

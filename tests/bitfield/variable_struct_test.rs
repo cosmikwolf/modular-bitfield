@@ -14,17 +14,18 @@ enum UmpData {
     Extended(u128), // 124 bits
 }
 
+#[bitfield(bits = (32, 64, 128))]
+#[derive(Debug, Clone, Copy)]
+struct UmpMessage {
+    #[variant_discriminator]
+    message_type: B4,
+    #[variant_data]
+    data: UmpData,
+}
+
 #[test]
 fn test_variable_struct_parsing() {
     // Test that variant_discriminator and variant_data attributes are parsed
-    #[bitfield(bits = (32, 64, 128))]
-    #[derive(Debug, Clone, Copy)]
-    struct UmpMessage {
-        #[variant_discriminator]
-        message_type: B4,
-        #[variant_data]
-        data: UmpData,
-    }
 
     // Basic test - just see if it compiles
     let _msg = UmpMessage::new();

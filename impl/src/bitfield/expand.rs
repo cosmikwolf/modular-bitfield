@@ -361,6 +361,7 @@ impl BitfieldStruct {
         quote_spanned!(span=>
             #( #attrs )*
             #[allow(clippy::identity_op)]
+            #[allow(clippy::semicolon_if_nothing_returned)]
             #vis struct #ident #generics
             {
                 bytes: [::core::primitive::u8; #next_divisible_by_8 / 8usize],
